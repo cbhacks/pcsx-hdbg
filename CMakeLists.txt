@@ -149,6 +149,7 @@ add_executable (pcsx-hdbg
 )
 target_include_directories (pcsx-hdbg
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PRIVATE "${SDL2_INCLUDE_DIRS}"
 )
 target_compile_options (pcsx-hdbg
     PRIVATE "-Wall"
@@ -156,7 +157,7 @@ target_compile_options (pcsx-hdbg
 )
 target_link_libraries (pcsx-hdbg
     PRIVATE pcsx-hdbg-core
-    PRIVATE "dl"
+    PRIVATE "${SDL2_LIBRARIES}"
 )
 add_dependencies (pcsx-hdbg
     pcsx-hdbg-gpu

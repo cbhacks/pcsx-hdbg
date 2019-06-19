@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include <dlfcn.h>
+#include <SDL.h>
 
 #include "../core/system.h"
 #include "../core/plugins.h"
@@ -47,24 +47,30 @@ void SysMessage(const char *fmt, ...)
     va_end(ap);
 }
 
+static const char *sys_lib_error;
+
 void *SysLoadLibrary(const char *lib)
 {
-    return dlopen(lib, RTLD_NOW);
+    void *result = SDL_LoadObject(lib);
+    sys_lib_error = result ? NULL : SDL_GetError();
+    return result;
 }
 
 void *SysLoadSym(void *lib, const char *sym)
 {
-    return dlsym(lib, sym);
+    void *result = SDL_LoadFunction(lib, sym);
+    sys_lib_error = result ? NULL : SDL_GetError();
+    return result;
 }
 
 const char *SysLibError()
 {
-    return dlerror();
+    return sys_lib_error;
 }
 
 void SysCloseLibrary(void *lib)
 {
-    dlclose(lib);
+    SDL_UnloadObject(lib);
 }
 
 void SysUpdate()

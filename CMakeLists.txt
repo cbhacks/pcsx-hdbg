@@ -64,15 +64,10 @@ target_link_libraries (pcsx-hdbg-core
 
 add_library (pcsx-hdbg-spu SHARED
     spu/adsr.c
-    #spu/alsa.c
     spu/cfg.c
     spu/dma.c
     spu/externals.c
     spu/freeze.c
-    #spu/nullsnd.c
-    #spu/openal.c
-    #spu/oss.c
-    #spu/pulseaudio.c
     spu/registers.c
     spu/reverb.c
     spu/sdl.c
@@ -124,7 +119,6 @@ target_link_libraries (pcsx-hdbg-gpu
 add_library (pcsx-hdbg-pad SHARED
     pad/analog.c
     pad/cfg.c
-    #pad/cfg-gtk.c
     pad/pad.c
     pad/sdljoy.c
     pad/util.c

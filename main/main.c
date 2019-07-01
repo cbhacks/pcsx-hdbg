@@ -20,8 +20,18 @@
 #include <stdlib.h>
 
 #include <SDL.h>
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 
 #include "../core/r3000a.h"
+
+static lua_State *L;
+
+static void cleanup_lua(void)
+{
+    lua_close(L);
+}
 
 int main(int argc, char **argv)
 {
@@ -39,6 +49,26 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     atexit(SDL_Quit);
+
+    L = luaL_newstate();
+    if (!L) {
+        fprintf(stderr, "luaL_newstate failed.\n");
+        return EXIT_FAILURE;
+    }
+    atexit(cleanup_lua);
+
+    luaL_openlibs(L);
+
+    err = luaL_loadfile(L, "script.lua");
+    if (err != LUA_OK) {
+        const char *msg = lua_tostring(L, -1);
+        if (msg) {
+            fprintf(stderr, "Error loading script.lua: %s\n", msg);
+        } else {
+            fprintf(stderr, "Error loading script.lua; no error message\n");
+        }
+        return EXIT_FAILURE;
+    }
 
     strcpy(Config.Spu, "libpcsx-hdbg-spu.so");
     strcpy(Config.Gpu, "libpcsx-hdbg-gpu.so");
@@ -101,6 +131,17 @@ int main(int argc, char **argv)
     atexit((void (*)(void))PAD2_close);
 
     EmuReset();
+
+    err = lua_pcall(L, 0, 0, 0);
+    if (err != LUA_OK) {
+        const char *msg = lua_tostring(L, -1);
+        if (msg) {
+            fprintf(stderr, "Error executing script.lua: %s\n", msg);
+        } else {
+            fprintf(stderr, "Error executing script.lua; no error message\n");
+        }
+        return EXIT_FAILURE;
+    }
 
     psxCpu->Execute();
 }

@@ -137,12 +137,54 @@ target_link_libraries (pcsx-hdbg-pad
     PRIVATE "${GTK3_LIBRARIES}"
 )
 
+add_library (lua STATIC
+    lua/src/lapi.c
+    lua/src/lauxlib.c
+    lua/src/lbaselib.c
+    lua/src/lbitlib.c
+    lua/src/lcode.c
+    lua/src/lcorolib.c
+    lua/src/lctype.c
+    lua/src/ldblib.c
+    lua/src/ldebug.c
+    lua/src/ldo.c
+    lua/src/ldump.c
+    lua/src/lfunc.c
+    lua/src/lgc.c
+    lua/src/linit.c
+    lua/src/liolib.c
+    lua/src/llex.c
+    lua/src/lmathlib.c
+    lua/src/lmem.c
+    lua/src/loadlib.c
+    lua/src/lobject.c
+    lua/src/lopcodes.c
+    lua/src/loslib.c
+    lua/src/lparser.c
+    lua/src/lstate.c
+    lua/src/lstring.c
+    lua/src/lstrlib.c
+    lua/src/ltable.c
+    lua/src/ltablib.c
+    lua/src/ltm.c
+    #lua/src/lua.c
+    #lua/src/luac.c
+    lua/src/lundump.c
+    lua/src/lutf8lib.c
+    lua/src/lvm.c
+    lua/src/lzio.c
+)
+target_link_libraries (lua
+    PRIVATE "m"
+)
+
 add_executable (pcsx-hdbg
     main/main.c
     main/sys.c
 )
 target_include_directories (pcsx-hdbg
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lua/src"
     PRIVATE "${SDL2_INCLUDE_DIRS}"
 )
 target_compile_options (pcsx-hdbg
@@ -151,10 +193,17 @@ target_compile_options (pcsx-hdbg
 )
 target_link_libraries (pcsx-hdbg
     PRIVATE pcsx-hdbg-core
+    PRIVATE lua
     PRIVATE "${SDL2_LIBRARIES}"
 )
 add_dependencies (pcsx-hdbg
     pcsx-hdbg-gpu
     pcsx-hdbg-spu
     pcsx-hdbg-pad
+)
+
+configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/script.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/script.lua"
+    COPYONLY
 )

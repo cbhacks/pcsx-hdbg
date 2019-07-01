@@ -19,12 +19,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL.h>
+
 #include "../core/r3000a.h"
 
 int main(int argc, char **argv)
 {
     (void)argc;
     (void)argv;
+
+    int err = SDL_Init(
+        SDL_INIT_AUDIO |
+        SDL_INIT_VIDEO |
+        SDL_INIT_JOYSTICK |
+        SDL_INIT_GAMECONTROLLER
+    );
+    if (err < 0) {
+        fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+    atexit(SDL_Quit);
 
     strcpy(Config.Spu, "libpcsx-hdbg-spu.so");
     strcpy(Config.Gpu, "libpcsx-hdbg-gpu.so");
@@ -33,7 +47,7 @@ int main(int argc, char **argv)
     strcpy(Config.PluginsDir, ".");
     strcpy(Config.Bios, "HLE");
 
-    int err = EmuInit();
+    err = EmuInit();
     if (err == -1) {
         fprintf(stderr, "Failed to initialize emulator.\n");
         return EXIT_FAILURE;

@@ -116,17 +116,7 @@ long PADopen(unsigned long *Disp) {
 	g.Disp = (Display *)*Disp;
 
 	if (!g.Opened) {
-		if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
-			if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1) {
-				return PSE_PAD_ERR_FAILURE;
-			}
-		} else if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE) == -1) {
-			return PSE_PAD_ERR_FAILURE;
-		}
- 
 #if SDL_VERSION_ATLEAST(2,0,0)
-		SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
-		
     has_haptic = 0;
     if (SDL_InitSubSystem(SDL_INIT_HAPTIC) == 0)
       has_haptic = 1;
@@ -162,19 +152,9 @@ long PADclose(void) {
 		DestroySDLJoy();
 		DestroyKeyboard();
 #if SDL_VERSION_ATLEAST(2,0,0)
-		if (SDL_WasInit(SDL_INIT_EVERYTHING & ~(SDL_INIT_HAPTIC | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER))) {
 			if (has_haptic)
 				SDL_QuitSubSystem(SDL_INIT_HAPTIC);
-			SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
-			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		} else {
-#else
-		if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_JOYSTICK)) {
-			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		} else {
 #endif
-			SDL_Quit();
-		}
 	}
 	g.Opened = 0;
 

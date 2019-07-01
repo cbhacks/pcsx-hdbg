@@ -135,7 +135,6 @@ void InitSDLJoy() {
 void DestroySDLJoy() {
 	uint8_t				i;
 
-	if (SDL_WasInit(SDL_INIT_JOYSTICK)) {
 		for (i = 0; i < 2; i++) {
 #if SDL_VERSION_ATLEAST(2,0,0)
 			if (g.PadState[i].JoyDev != NULL || g.PadState[i].GCDev != NULL) {
@@ -155,7 +154,6 @@ void DestroySDLJoy() {
 			}
 #endif
 		}
-	}
 
 	for (i = 0; i < 2; i++) {
 		g.PadState[i].JoyDev = NULL;

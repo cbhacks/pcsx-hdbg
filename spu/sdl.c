@@ -45,28 +45,10 @@ static void SOUND_FillAudio(void *unused, Uint8 *stream, int len) {
 	}
 }
 
-static void InitSDL() {
-	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
-		SDL_InitSubSystem(SDL_INIT_AUDIO);
-	} else {
-		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE);
-	}
-}
-
-static void DestroySDL() {
-	if (SDL_WasInit(SDL_INIT_EVERYTHING & ~SDL_INIT_AUDIO)) {
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-	} else {
-		SDL_Quit();
-	}
-}
-
 void SetupSound(void) {
 	SDL_AudioSpec				spec;
 
 	if (pSndBuffer != NULL) return;
-
-	InitSDL();
 
 	spec.freq = 44100;
 	spec.format = AUDIO_S16SYS;
@@ -75,7 +57,6 @@ void SetupSound(void) {
 	spec.callback = SOUND_FillAudio;
 
 	if (SDL_OpenAudio(&spec, NULL) < 0) {
-		DestroySDL();
 		return;
 	}
 
@@ -98,7 +79,6 @@ void RemoveSound(void) {
 	if (pSndBuffer == NULL) return;
 
 	SDL_CloseAudio();
-	DestroySDL();
 
 	free(pSndBuffer);
 	pSndBuffer = NULL;

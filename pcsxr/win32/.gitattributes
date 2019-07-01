@@ -1,3 +1,0 @@
-*.sln text eol=crlf
-*.vcxproj* text eol=crlf
-resource.h text eol=crlf

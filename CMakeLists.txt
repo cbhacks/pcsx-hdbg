@@ -62,7 +62,7 @@ target_link_libraries (pcsx-hdbg-core
     PUBLIC "rt"
 )
 
-add_library (pcsx-hdbg-spu SHARED
+add_library (pcsx-hdbg-spu MODULE
     spu/adsr.c
     spu/cfg.c
     spu/dma.c
@@ -88,7 +88,7 @@ target_link_libraries (pcsx-hdbg-spu
     PRIVATE "${GTK3_LIBRARIES}"
 )
 
-add_library (pcsx-hdbg-gpu SHARED
+add_library (pcsx-hdbg-gpu MODULE
     gpu/cfg.c
     gpu/draw.c
     gpu/fps.c
@@ -116,7 +116,7 @@ target_link_libraries (pcsx-hdbg-gpu
     PRIVATE "${GTK3_LIBRARIES}"
 )
 
-add_library (pcsx-hdbg-pad SHARED
+add_library (pcsx-hdbg-pad MODULE
     pad/analog.c
     pad/cfg.c
     pad/pad.c

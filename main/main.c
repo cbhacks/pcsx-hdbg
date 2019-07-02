@@ -132,6 +132,9 @@ int main(int argc, char **argv)
 
     EmuReset();
 
+    CheckCdrom();
+    LoadCdrom();
+
     err = lua_pcall(L, 0, 0, 0);
     if (err != LUA_OK) {
         const char *msg = lua_tostring(L, -1);

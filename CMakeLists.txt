@@ -181,6 +181,7 @@ target_link_libraries (lua
 add_executable (pcsx-hdbg
     main/main.c
     main/sys.c
+    main/cpu.c
     main/mem.c
     main/trap.c
 )

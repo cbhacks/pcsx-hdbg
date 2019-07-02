@@ -24,6 +24,7 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+#include <hdbg_cpu.h>
 #include <hdbg_mem.h>
 #include <hdbg_trap.h>
 
@@ -72,6 +73,9 @@ int main(int argc, char **argv)
         }
         return EXIT_FAILURE;
     }
+
+    cpu_init();
+    atexit(cpu_quit);
 
     mem_init();
     atexit(mem_quit);

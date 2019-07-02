@@ -89,6 +89,8 @@ int main(int argc, char **argv)
     strcpy(Config.Pad2, "libpcsx-hdbg-pad.so");
     strcpy(Config.PluginsDir, ".");
     strcpy(Config.Bios, "HLE");
+    strcpy(Config.Mcd1, "memcard1.dat");
+    strcpy(Config.Mcd2, "memcard2.dat");
 
     err = EmuInit();
     if (err == -1) {

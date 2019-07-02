@@ -16,6 +16,19 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+-- Setup the metatable for _ENV.
+local META_ENV = {}
+setmetatable(_ENV, META_ENV)
+
+-- Raise errors instead of yielding nil when accessing globals which do
+-- not exist or have not yet been initialized.
+META_ENV.__index = function(t, k)
+    error("no such global variable: " .. k)
+end
+META_ENV.__newindex = function(t, k, v)
+    rawset(_ENV, k, v)
+end
+
 print "Hello, world!"
 
 -- Example: Change starting level of NTSC-U Crash 2 to Ruination

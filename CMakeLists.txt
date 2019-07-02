@@ -181,6 +181,7 @@ target_link_libraries (lua
 add_executable (pcsx-hdbg
     main/main.c
     main/sys.c
+    main/mem.c
 )
 target_include_directories (pcsx-hdbg
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"

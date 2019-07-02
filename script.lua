@@ -17,3 +17,6 @@
 --
 
 print "Hello, world!"
+
+-- Example: Change starting level of NTSC-U Crash 2 to Ruination
+write8(0x800117E4, 0xF)

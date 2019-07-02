@@ -24,9 +24,11 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+#include <hdbg_mem.h>
+
 #include "../core/r3000a.h"
 
-static lua_State *L;
+lua_State *L;
 
 static void cleanup_lua(void)
 {
@@ -69,6 +71,9 @@ int main(int argc, char **argv)
         }
         return EXIT_FAILURE;
     }
+
+    mem_init();
+    atexit(mem_quit);
 
     strcpy(Config.Spu, "libpcsx-hdbg-spu.so");
     strcpy(Config.Gpu, "libpcsx-hdbg-gpu.so");

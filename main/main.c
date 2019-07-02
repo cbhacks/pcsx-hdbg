@@ -147,6 +147,8 @@ int main(int argc, char **argv)
 
     EmuReset();
 
+    LoadMcds(Config.Mcd1, Config.Mcd2);
+
     CheckCdrom();
     LoadCdrom();
 

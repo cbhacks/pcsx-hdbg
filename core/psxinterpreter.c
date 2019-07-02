@@ -49,245 +49,6 @@ void (*psxCP0[32])();
 void (*psxCP2[64])();
 void (*psxCP2BSC[32])();
 
-static void delayRead(int reg, u32 bpc) {
-	u32 rold, rnew;
-
-//	SysPrintf("delayRead at %x!\n", psxRegs.pc);
-
-	rold = psxRegs.GPR.r[reg];
-	psxBSC[psxRegs.code >> 26](); // branch delay load
-	rnew = psxRegs.GPR.r[reg];
-
-	psxRegs.pc = bpc;
-
-	branch = 0;
-
-	psxRegs.GPR.r[reg] = rold;
-	execI(); // first branch opcode
-	psxRegs.GPR.r[reg] = rnew;
-
-	psxBranchTest();
-}
-
-static void delayWrite(int reg, u32 bpc) {
-
-/*	SysPrintf("delayWrite at %x!\n", psxRegs.pc);
-
-	SysPrintf("%s\n", disR3000AF(psxRegs.code, psxRegs.pc-4));
-	SysPrintf("%s\n", disR3000AF(PSXMu32(bpc), bpc));*/
-
-	// no changes from normal behavior
-
-	psxBSC[psxRegs.code >> 26]();
-
-	branch = 0;
-	psxRegs.pc = bpc;
-
-	psxBranchTest();
-}
-
-static void delayReadWrite(int reg, u32 bpc) {
-
-//	SysPrintf("delayReadWrite at %x!\n", psxRegs.pc);
-
-	// the branch delay load is skipped
-
-	branch = 0;
-	psxRegs.pc = bpc;
-
-	psxBranchTest();
-}
-
-// this defines shall be used with the tmp 
-// of the next func (instead of _Funct_...)
-#define _tFunct_  ((tmp      ) & 0x3F)  // The funct part of the instruction register 
-#define _tRd_     ((tmp >> 11) & 0x1F)  // The rd part of the instruction register 
-#define _tRt_     ((tmp >> 16) & 0x1F)  // The rt part of the instruction register 
-#define _tRs_     ((tmp >> 21) & 0x1F)  // The rs part of the instruction register 
-#define _tSa_     ((tmp >>  6) & 0x1F)  // The sa part of the instruction register
-
-int psxTestLoadDelay(int reg, u32 tmp) {
-	if (tmp == 0) return 0; // NOP
-	switch (tmp >> 26) {
-		case 0x00: // SPECIAL
-			switch (_tFunct_) {
-				case 0x00: // SLL
-				case 0x02: case 0x03: // SRL/SRA
-					if (_tRd_ == reg && _tRt_ == reg) return 1; else
-					if (_tRt_ == reg) return 2; else
-					if (_tRd_ == reg) return 3;
-					break;
-
-				case 0x08: // JR
-					if (_tRs_ == reg) return 2;
-					break;
-				case 0x09: // JALR
-					if (_tRd_ == reg && _tRs_ == reg) return 1; else
-					if (_tRs_ == reg) return 2; else
-					if (_tRd_ == reg) return 3;
-					break;
-
-				// SYSCALL/BREAK just a break;
-
-				case 0x20: case 0x21: case 0x22: case 0x23:
-				case 0x24: case 0x25: case 0x26: case 0x27: 
-				case 0x2a: case 0x2b: // ADD/ADDU...
-				case 0x04: case 0x06: case 0x07: // SLLV...
-					if (_tRd_ == reg && (_tRt_ == reg || _tRs_ == reg)) return 1; else
-					if (_tRt_ == reg || _tRs_ == reg) return 2; else
-					if (_tRd_ == reg) return 3;
-					break;
-
-				case 0x10: case 0x12: // MFHI/MFLO
-					if (_tRd_ == reg) return 3;
-					break;
-				case 0x11: case 0x13: // MTHI/MTLO
-					if (_tRs_ == reg) return 2;
-					break;
-
-				case 0x18: case 0x19:
-				case 0x1a: case 0x1b: // MULT/DIV...
-					if (_tRt_ == reg || _tRs_ == reg) return 2;
-					break;
-			}
-			break;
-
-		case 0x01: // REGIMM
-			switch (_tRt_) {
-				case 0x00: case 0x01:
-				case 0x10: case 0x11: // BLTZ/BGEZ...
-					// Xenogears - lbu v0 / beq v0
-					// - no load delay (fixes battle loading)
-					break;
-
-					if (_tRs_ == reg) return 2;
-					break;
-			}
-			break;
-
-		// J would be just a break;
-		case 0x03: // JAL
-			if (31 == reg) return 3;
-			break;
-
-		case 0x04: case 0x05: // BEQ/BNE
-			// Xenogears - lbu v0 / beq v0
-			// - no load delay (fixes battle loading)
-			break;
-
-			if (_tRs_ == reg || _tRt_ == reg) return 2;
-			break;
-
-		case 0x06: case 0x07: // BLEZ/BGTZ
-			// Xenogears - lbu v0 / beq v0
-			// - no load delay (fixes battle loading)
-			break;
-
-			if (_tRs_ == reg) return 2;
-			break;
-
-		case 0x08: case 0x09: case 0x0a: case 0x0b:
-		case 0x0c: case 0x0d: case 0x0e: // ADDI/ADDIU...
-			if (_tRt_ == reg && _tRs_ == reg) return 1; else
-			if (_tRs_ == reg) return 2; else
-			if (_tRt_ == reg) return 3;
-			break;
-
-		case 0x0f: // LUI
-			if (_tRt_ == reg) return 3;
-			break;
-
-		case 0x10: // COP0
-			switch (_tFunct_) {
-				case 0x00: // MFC0
-					if (_tRt_ == reg) return 3;
-					break;
-				case 0x02: // CFC0
-					if (_tRt_ == reg) return 3;
-					break;
-				case 0x04: // MTC0
-					if (_tRt_ == reg) return 2;
-					break;
-				case 0x06: // CTC0
-					if (_tRt_ == reg) return 2;
-					break;
-				// RFE just a break;
-			}
-			break;
-
-		case 0x12: // COP2
-			switch (_tFunct_) {
-				case 0x00: 
-					switch (_tRs_) {
-						case 0x00: // MFC2
-							if (_tRt_ == reg) return 3;
-							break;
-						case 0x02: // CFC2
-							if (_tRt_ == reg) return 3;
-							break;
-						case 0x04: // MTC2
-							if (_tRt_ == reg) return 2;
-							break;
-						case 0x06: // CTC2
-							if (_tRt_ == reg) return 2;
-							break;
-					}
-					break;
-				// RTPS... break;
-			}
-			break;
-
-		case 0x22: case 0x26: // LWL/LWR
-			if (_tRt_ == reg) return 3; else
-			if (_tRs_ == reg) return 2;
-			break;
-
-		case 0x20: case 0x21: case 0x23:
-		case 0x24: case 0x25: // LB/LH/LW/LBU/LHU
-			if (_tRt_ == reg && _tRs_ == reg) return 1; else
-			if (_tRs_ == reg) return 2; else
-			if (_tRt_ == reg) return 3;
-			break;
-
-		case 0x28: case 0x29: case 0x2a:
-		case 0x2b: case 0x2e: // SB/SH/SWL/SW/SWR
-			if (_tRt_ == reg || _tRs_ == reg) return 2;
-			break;
-
-		case 0x32: case 0x3a: // LWC2/SWC2
-			if (_tRs_ == reg) return 2;
-			break;
-	}
-
-	return 0;
-}
-
-void psxDelayTest(int reg, u32 bpc) {
-	u32 *code;
-	u32 tmp;
-
-	// Don't execute yet - just peek
-	code = Read_ICache(bpc, TRUE);
-
-	tmp = ((code == NULL) ? 0 : SWAP32(*code));
-	branch = 1;
-
-	switch (psxTestLoadDelay(reg, tmp)) {
-		case 1:
-			delayReadWrite(reg, bpc); return;
-		case 2:
-			delayRead(reg, bpc); return;
-		case 3:
-			delayWrite(reg, bpc); return;
-	}
-	psxBSC[psxRegs.code >> 26]();
-
-	branch = 0;
-	psxRegs.pc = bpc;
-
-	psxBranchTest();
-}
-
 static u32 psxBranchNoDelay(void) {
 	u32 *code;
 	u32 temp;
@@ -430,40 +191,6 @@ static __inline void doBranch(u32 tar) {
 
 	psxRegs.pc += 4;
 	psxRegs.cycle += BIAS;
-
-	// check for load delay
-	tmp = psxRegs.code >> 26;
-	switch (tmp) {
-		case 0x10: // COP0
-			switch (_Rs_) {
-				case 0x00: // MFC0
-				case 0x02: // CFC0
-					psxDelayTest(_Rt_, branchPC);
-					return;
-			}
-			break;
-		case 0x12: // COP2
-			switch (_Funct_) {
-				case 0x00:
-					switch (_Rs_) {
-						case 0x00: // MFC2
-						case 0x02: // CFC2
-							psxDelayTest(_Rt_, branchPC);
-							return;
-					}
-					break;
-			}
-			break;
-		case 0x32: // LWC2
-			psxDelayTest(_Rt_, branchPC);
-			return;
-		default:
-			if (tmp >= 0x20 && tmp <= 0x26) { // LB/LH/LWL/LW/LBU/LHU/LWR
-				psxDelayTest(_Rt_, branchPC);
-				return;
-			}
-			break;
-	}
 
 	psxBSC[psxRegs.code >> 26]();
 
@@ -658,18 +385,6 @@ void psxJALR() {
 #define _oB_ (_u32(_rRs_) + _Imm_)
 
 void psxLB() {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
-
 	if (_Rt_) {
 		_i32(_rRt_) = (signed char)psxMemRead8(_oB_); 
 	} else {
@@ -678,18 +393,6 @@ void psxLB() {
 }
 
 void psxLBU() {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
-
 	if (_Rt_) {
 		_u32(_rRt_) = psxMemRead8(_oB_);
 	} else {
@@ -698,18 +401,6 @@ void psxLBU() {
 }
 
 void psxLH() {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
-
 	if (_Rt_) {
 		_i32(_rRt_) = (short)psxMemRead16(_oB_);
 	} else {
@@ -718,18 +409,6 @@ void psxLH() {
 }
 
 void psxLHU() {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
-
 	if (_Rt_) {
 		_u32(_rRt_) = psxMemRead16(_oB_);
 	} else {
@@ -738,18 +417,6 @@ void psxLHU() {
 }
 
 void psxLW() {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
-
 	if (_Rt_) {
 		_u32(_rRt_) = psxMemRead32(_oB_);
 	} else {
@@ -764,17 +431,6 @@ void psxLWL() {
 	u32 addr = _oB_;
 	u32 shift = addr & 3;
 	u32 mem = psxMemRead32(addr & ~3);
-
-
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
 
 
 	if (!_Rt_) return;
@@ -798,19 +454,6 @@ void psxLWR() {
 	u32 addr = _oB_;
 	u32 shift = addr & 3;
 	u32 mem = psxMemRead32(addr & ~3);
-
-
-	
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
 
 
 	if (!_Rt_) return;
@@ -878,17 +521,6 @@ void psxSWR() {
 *********************************************************/
 void psxMFC0()
 {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
 	if (!_Rt_) return;
 	
 	_i32(_rRt_) = (int)_rFs_;
@@ -896,17 +528,6 @@ void psxMFC0()
 
 void psxCFC0()
 {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
-
 	if (!_Rt_) return;
 	
 	_i32(_rRt_) = (int)_rFs_;
@@ -947,32 +568,12 @@ void psxCTC0() { MTC0(_Rd_, _u32(_rRt_)); }
 
 void psxMFC2()
 {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
 	gteMFC2();
 }
 
 
 void psxCFC2()
 {
-	// load delay = 1 latency
-	if( branch == 0 )
-	{
-		// simulate: beq r0,r0,lw+4 / lw / (delay slot)
-		psxRegs.pc -= 4;
-		doBranch( psxRegs.pc + 4 );
-
-		return;
-	}
-
 	gteCFC2();
 }
 

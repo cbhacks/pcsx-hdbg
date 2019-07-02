@@ -25,6 +25,7 @@
 #include "lauxlib.h"
 
 #include <hdbg_mem.h>
+#include <hdbg_trap.h>
 
 #include "../core/r3000a.h"
 
@@ -74,6 +75,9 @@ int main(int argc, char **argv)
 
     mem_init();
     atexit(mem_quit);
+
+    trap_init();
+    atexit(trap_quit);
 
     strcpy(Config.Spu, "libpcsx-hdbg-spu.so");
     strcpy(Config.Gpu, "libpcsx-hdbg-gpu.so");

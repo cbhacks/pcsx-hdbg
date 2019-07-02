@@ -25,6 +25,7 @@
 #include "r3000a.h"
 #include "gte.h"
 #include "psxhle.h"
+#include <hdbg_trap.h>
 
 static int branch = 0;
 static int branch2 = 0;
@@ -1098,6 +1099,8 @@ static void intShutdown() {
 
 // interpreter execution
 static inline void execI() { 
+    trap_raise(psxRegs.pc);
+
 	u32 *code = Read_ICache(psxRegs.pc, FALSE);
 	psxRegs.code = ((code == NULL) ? 0 : SWAP32(*code));
 

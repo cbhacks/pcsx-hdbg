@@ -1,3 +1,12 @@
+//
+// Based on PCSX-r code, modified for use in PCSX-HDBG
+//
+// PCSX-HDBG - PCSX-based hack debugger
+// Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>
+//
+// GNU GPL v3 or later
+//
+
 /*  Pcsx - Pc Psx Emulator
  *  Copyright (C) 1999-2003  Pcsx Team
  *

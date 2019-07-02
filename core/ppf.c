@@ -1,3 +1,12 @@
+//
+// Based on PCSX-r code, modified for use in PCSX-HDBG
+//
+// PCSX-HDBG - PCSX-based hack debugger
+// Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>
+//
+// GNU GPL v3 or later
+//
+
 /*  PPF/SBI Support for PCSX-Reloaded
  *  Copyright (c) 2009, Wei Mingzhi <whistler_wmz@users.sf.net>.
  *  Copyright (c) 2010, shalma.

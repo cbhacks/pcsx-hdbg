@@ -1,3 +1,12 @@
+//
+// Based on PCSX-r code, modified for use in PCSX-HDBG
+//
+// PCSX-HDBG - PCSX-based hack debugger
+// Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>
+//
+// GNU GPL v3 or later
+//
+
 #define COMBINE_EXT          0x8570
 #define COMBINE_RGB_EXT      0x8571
 #define COMBINE_ALPHA_EXT    0x8572

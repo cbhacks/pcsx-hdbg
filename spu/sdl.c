@@ -1,3 +1,12 @@
+//
+// Based on PCSX-r code, modified for use in PCSX-HDBG
+//
+// PCSX-HDBG - PCSX-based hack debugger
+// Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>
+//
+// GNU GPL v3 or later
+//
+
 /* SDL Driver for P.E.Op.S Sound Plugin
  * Copyright (c) 2010, Wei Mingzhi <whistler_wmz@users.sf.net>.
  *

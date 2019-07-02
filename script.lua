@@ -1,20 +1,25 @@
---
--- PCSX-HDBG - PCSX-based hack debugger
--- Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>
---
--- This program is free software: you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation, either version 3 of the License, or
--- (at your option) any later version.
---
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with this program.  If not, see <http://www.gnu.org/licenses/>.
---
+print '                                                                       '
+print ' PCSX-HDBG - PCSX-based hack debugger                                  '
+print ' Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>                   '
+print '                                                                       '
+print ' Based on PCSX-r, PCSX-df, PCSX, and the accompanying emulator GPU,    '
+print ' SPU, and PAD plugins. These are very large projects with too many     '
+print ' contributors to list here. Please see the include AUTHORS file for    '
+print ' more details.                                                         '
+print '                                                                       '
+print ' This program is free software: you can redistribute it and/or modify  '
+print ' it under the terms of the GNU General Public License as published by  '
+print ' the Free Software Foundation, either version 3 of the License, or     '
+print ' (at your option) any later version.                                   '
+print '                                                                       '
+print ' This program is distributed in the hope that it will be useful,       '
+print ' but WITHOUT ANY WARRANTY; without even the implied warranty of        '
+print ' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         '
+print ' GNU General Public License for more details.                          '
+print '                                                                       '
+print ' You should have received a copy of the GNU General Public License     '
+print ' along with this program.  If not, see <http://www.gnu.org/licenses/>. '
+print '                                                                       '
 
 -- Setup the metatable for _ENV.
 local META_ENV = {}

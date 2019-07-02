@@ -191,3 +191,23 @@ write8(0x800117E4, 0xF)
 trapexec(0x8003A368, function()
     print("RNG(" .. v0 .. ", " .. v1 .. ")")
 end)
+
+-- Example: Make GOOL RNG always return the lower-bound input
+local rng_lastpc
+local rng_counter
+trapexec(0x8003A3B4, function()
+    if rng_lastpc ~= s5 then
+        rng_lastpc = s5
+        rng_counter = 0
+    end
+    rng_counter = rng_counter + 1
+
+    if rng_counter <= 20 then
+        v1 = 0
+    else
+        -- In case of infinite loop on RNG instructions (spitting plants,
+        -- Diggin' It statues, Tiny boss fight, etc), start returning increasing
+        -- RNG values until the next different-PC RNG instruction.
+        v1 = rng_counter - 20
+    end
+end)

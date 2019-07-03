@@ -24,9 +24,6 @@ find_package (SDL2 REQUIRED)
 find_package (X11 REQUIRED)
 find_package (OpenGL REQUIRED)
 
-find_package (PkgConfig REQUIRED)
-pkg_search_module (GTK3 REQUIRED gtk+-3.0)
-
 add_library (pcsx-hdbg-core STATIC
     core/cdriso.c
     core/cdrom.c
@@ -72,20 +69,14 @@ add_library (pcsx-hdbg-spu MODULE
     spu/reverb.c
     spu/sdl.c
     spu/spu.c
-    spu/spucfg-0.1df/main.c
     spu/xa.c
 )
 target_include_directories (pcsx-hdbg-spu
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE "${SDL2_INCLUDE_DIRS}"
-    PRIVATE "${GTK3_INCLUDE_DIRS}"
-)
-target_compile_options (pcsx-hdbg-spu
-    PRIVATE "${GTK3_CFLAGS_OTHER}"
 )
 target_link_libraries (pcsx-hdbg-spu
     PRIVATE "${SDL2_LIBRARIES}"
-    PRIVATE "${GTK3_LIBRARIES}"
 )
 
 add_library (pcsx-hdbg-gpu MODULE
@@ -93,7 +84,6 @@ add_library (pcsx-hdbg-gpu MODULE
     gpu/draw.c
     gpu/fps.c
     gpu/gpu.c
-    gpu/gpucfg/main.c
     gpu/gte_accuracy.c
     gpu/key.c
     gpu/menu.c
@@ -105,15 +95,10 @@ target_include_directories (pcsx-hdbg-gpu
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE "${X11_INCLUDE_DIRS}"
     PRIVATE "${OPENGL_INCLUDE_DIRS}"
-    PRIVATE "${GTK3_INCLUDE_DIRS}"
-)
-target_compile_options (pcsx-hdbg-gpu
-    PRIVATE "${GTK3_CFLAGS_OTHER}"
 )
 target_link_libraries (pcsx-hdbg-gpu
     PRIVATE "${X11_LIBRARIES}"
     PRIVATE "${OPENGL_LIBRARIES}"
-    PRIVATE "${GTK3_LIBRARIES}"
 )
 
 add_library (pcsx-hdbg-pad MODULE
@@ -127,14 +112,9 @@ add_library (pcsx-hdbg-pad MODULE
 target_include_directories (pcsx-hdbg-pad
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE "${SDL2_INCLUDE_DIRS}"
-    PRIVATE "${GTK3_INCLUDE_DIRS}"
-)
-target_compile_options (pcsx-hdbg-pad
-    PRIVATE "${GTK3_CFLAGS_OTHER}"
 )
 target_link_libraries (pcsx-hdbg-pad
     PRIVATE "${SDL2_LIBRARIES}"
-    PRIVATE "${GTK3_LIBRARIES}"
 )
 
 add_library (lua STATIC

@@ -95,12 +95,12 @@ static struct {
 
 int (*cdimg_read_func)(FILE *f, unsigned int base, void *dest, int sector);
 
-char* CALLBACK CDR__getDriveLetter(void);
-long CALLBACK CDR__configure(void);
-long CALLBACK CDR__test(void);
-void CALLBACK CDR__about(void);
-long CALLBACK CDR__setfilename(char *filename);
-long CALLBACK CDR__getStatus(struct CdrStat *stat);
+char* CDR__getDriveLetter(void);
+long CDR__configure(void);
+long CDR__test(void);
+void CDR__about(void);
+long CDR__setfilename(char *filename);
+long CDR__getStatus(struct CdrStat *stat);
 
 static void DecodeRawSubData(void);
 
@@ -1722,11 +1722,11 @@ static int cdread_archive(FILE *f, unsigned int base, void *dest, int sector) {r
 int handlearchive(const char *isoname, s32* accurate_length) {return -1;}
 #endif
 
-static unsigned char * CALLBACK ISOgetBuffer_compr(void) {
+static unsigned char * ISOgetBuffer_compr(void) {
 	return compr_img->buff_raw[compr_img->sector_in_blk] + 12;
 }
 
-static unsigned char * CALLBACK ISOgetBuffer(void) {
+static unsigned char * ISOgetBuffer(void) {
 	return cdbuffer + 12;
 }
 
@@ -1743,7 +1743,7 @@ static void PrintTracks(void) {
 
 // This function is invoked by the front-end when opening an ISO
 // file for playback
-static long CALLBACK ISOopen(void) {
+static long ISOopen(void) {
 	if (cdHandle != NULL) {
 		return 0; // it's already open
 	}
@@ -1835,7 +1835,7 @@ static long CALLBACK ISOopen(void) {
 	return 0;
 }
 
-static long CALLBACK ISOclose(void) {
+static long ISOclose(void) {
 	int i;
 
 	if (cdHandle != NULL) {
@@ -1873,7 +1873,7 @@ static long CALLBACK ISOclose(void) {
 	return 0;
 }
 
-long CALLBACK ISOinit(void) {
+long ISOinit(void) {
 	assert(cdHandle == NULL);
 	assert(subHandle == NULL);
 	assert(ecm_file_detected == FALSE);
@@ -1883,7 +1883,7 @@ long CALLBACK ISOinit(void) {
 	return 0; // do nothing
 }
 
-static long CALLBACK ISOshutdown(void) {
+static long ISOshutdown(void) {
 	ISOclose();
 
 	// ECM LUT
@@ -1918,7 +1918,7 @@ static long CALLBACK ISOshutdown(void) {
 // buffer:
 //  byte 0 - start track
 //  byte 1 - end track
-static long CALLBACK ISOgetTN(unsigned char *buffer) {
+static long ISOgetTN(unsigned char *buffer) {
 	buffer[0] = 1;
 
 	if (numtracks > 0) {
@@ -1936,7 +1936,7 @@ static long CALLBACK ISOgetTN(unsigned char *buffer) {
 //  byte 0 - frame
 //  byte 1 - second
 //  byte 2 - minute
-static long CALLBACK ISOgetTD(unsigned char track, unsigned char *buffer) {
+static long ISOgetTD(unsigned char track, unsigned char *buffer) {
 	if (track == 0) {
 		unsigned int sect;
 		unsigned char time[3];
@@ -1979,7 +1979,7 @@ static void DecodeRawSubData(void) {
 // read track
 // time: byte 0 - minute; byte 1 - second; byte 2 - frame
 // uses bcd format
-static long CALLBACK ISOreadTrack(unsigned char *time) {
+static long ISOreadTrack(unsigned char *time) {
 	int sector = MSF2SECT(btoi(time[0]), btoi(time[1]), btoi(time[2]));
 	long ret;
 
@@ -2013,19 +2013,19 @@ static long CALLBACK ISOreadTrack(unsigned char *time) {
 // plays cdda audio
 // sector: byte 0 - minute; byte 1 - second; byte 2 - frame
 // does NOT uses bcd format
-static long CALLBACK ISOplay(unsigned char *time) {
+static long ISOplay(unsigned char *time) {
 	playing = TRUE;
 	return 0;
 }
 
 // stops cdda audio
-static long CALLBACK ISOstop(void) {
+static long ISOstop(void) {
 	playing = FALSE;
 	return 0;
 }
 
 // gets subchannel data
-static unsigned char* CALLBACK ISOgetBufferSub(void) {
+static unsigned char* ISOgetBufferSub(void) {
 	if ((subHandle != NULL || subChanMixed) && !subChanMissing) {
 		return subbuffer;
 	}
@@ -2033,7 +2033,7 @@ static unsigned char* CALLBACK ISOgetBufferSub(void) {
 	return NULL;
 }
 
-static long CALLBACK ISOgetStatus(struct CdrStat *stat) {
+static long ISOgetStatus(struct CdrStat *stat) {
 	u32 sect;
 	
 	CDR__getStatus(stat);
@@ -2055,7 +2055,7 @@ static long CALLBACK ISOgetStatus(struct CdrStat *stat) {
 }
 
 // read CDDA sector into buffer
-long CALLBACK ISOreadCDDA(unsigned char m, unsigned char s, unsigned char f, unsigned char *buffer) {
+long ISOreadCDDA(unsigned char m, unsigned char s, unsigned char f, unsigned char *buffer) {
 	unsigned char msf[3] = {m, s, f};
 	unsigned int file, track, track_start = 0;
 	int ret;

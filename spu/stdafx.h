@@ -39,8 +39,12 @@
 #include <sys/time.h>  
 #include <math.h>  
 
-#undef CALLBACK
-#define CALLBACK
+#ifndef _WIN32
+#define DLLEXPORT
+#else
+#define DLLEXPORT __attribute__ ((dllexport))
+#endif
+
 #define DWORD unsigned int
 #define LOWORD(l)           ((unsigned short)(l)) 
 #define HIWORD(l)           ((unsigned short)(((unsigned int)(l) >> 16) & 0xFFFF)) 

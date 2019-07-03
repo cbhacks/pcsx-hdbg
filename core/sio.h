@@ -80,7 +80,7 @@ typedef struct {
 
 void GetMcdBlockInfo(int mcd, int block, McdBlock *info);
 
-void CALLBACK SIO1irq(void);
+void SIO1irq(void);
 
 #ifdef __cplusplus
 }

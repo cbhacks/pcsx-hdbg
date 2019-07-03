@@ -284,8 +284,8 @@ extern int      SSumL[];
 extern int      iCycle;
 extern short *  pS;
 
-extern void (CALLBACK *cddavCallback)(unsigned short,unsigned short);
-extern void (CALLBACK *irqCallback)(void);                  // func of main emu, called on spu irq
+extern void (*cddavCallback)(unsigned short,unsigned short);
+extern void (*irqCallback)(void);                  // func of main emu, called on spu irq
 
 #endif
 

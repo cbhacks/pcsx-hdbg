@@ -155,17 +155,17 @@ BOOL			oddLines;
 // stuff to make this a true PDK module
 ////////////////////////////////////////////////////////////////////////
 
-char * CALLBACK PSEgetLibName(void)
+char * DLLEXPORT PSEgetLibName(void)
 {
  return _(libraryName);
 }
 
-unsigned long CALLBACK PSEgetLibType(void)
+unsigned long DLLEXPORT PSEgetLibType(void)
 {
  return  PSE_LT_GPU;
 }
 
-unsigned long CALLBACK PSEgetLibVersion(void)
+unsigned long DLLEXPORT PSEgetLibVersion(void)
 {
  return version<<16|revision<<8|build;
 }
@@ -434,7 +434,7 @@ void DoSnapShot(void)
  DoTextSnapShot(snapshotnr);
 }       
 
-void CALLBACK GPUmakeSnapshot(void)
+void DLLEXPORT GPUmakeSnapshot(void)
 {
  bSnapShot = TRUE;
 }        
@@ -443,7 +443,7 @@ void CALLBACK GPUmakeSnapshot(void)
 // GPU INIT... here starts it all (first func called by emu)
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK GPUinit()
+long DLLEXPORT GPUinit()
 {
  memset(ulStatusControl,0,256*sizeof(uint32_t));
 
@@ -535,7 +535,7 @@ static int fx=0;
 
 static void (*finishframe)(void);
 
-long GPUopen(void(*f)(void),char * CapText,char * CfgFile)
+long DLLEXPORT GPUopen(void(*f)(void),char * CapText,char * CfgFile)
 {
     finishframe = f;
 
@@ -565,7 +565,7 @@ long GPUopen(void(*f)(void),char * CapText,char * CfgFile)
 // close
 ////////////////////////////////////////////////////////////////////////
 
-long GPUclose()                                        // LINUX CLOSE
+long DLLEXPORT GPUclose()                                        // LINUX CLOSE
 {
  GLcleanup();                                          // close OGL
 
@@ -578,7 +578,7 @@ long GPUclose()                                        // LINUX CLOSE
 // I shot the sheriff... last function called from emu 
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK GPUshutdown()
+long DLLEXPORT GPUshutdown()
 {
  if(psxVSecure) free(psxVSecure);                      // kill emulated vram memory
  psxVSecure=0;
@@ -1370,7 +1370,7 @@ BOOL bSwapCheck(void)
 // gun cursor func: player=0-7, x=0-511, y=0-255
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUcursor(int iPlayer,int x,int y)
+void DLLEXPORT GPUcursor(int iPlayer,int x,int y)
 {
  if(iPlayer<0) return;
  if(iPlayer>7) return;
@@ -1393,7 +1393,7 @@ void CALLBACK GPUcursor(int iPlayer,int x,int y)
 
 static unsigned short usFirstPos=2;
 
-void CALLBACK GPUupdateLace(void)
+void DLLEXPORT GPUupdateLace(void)
 {
  if(!(dwActFixes&0x1000))                               
   STATUSREG^=0x80000000;                               // interlaced bit toggle, if the CC game fix is not active (see gpuReadStatus)
@@ -1428,7 +1428,7 @@ void CALLBACK GPUupdateLace(void)
 // process read request from GPU status register
 ////////////////////////////////////////////////////////////////////////
 
-uint32_t CALLBACK GPUreadStatus(void)
+uint32_t DLLEXPORT GPUreadStatus(void)
 {   
  if (vBlank || oddLines == FALSE) 
   { // vblank or even lines
@@ -1473,7 +1473,7 @@ uint32_t CALLBACK GPUreadStatus(void)
 // these are always single packet commands.
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUwriteStatus(uint32_t gdata)
+void DLLEXPORT GPUwriteStatus(uint32_t gdata)
 {
  uint32_t lCommand=(gdata>>24)&0xff;
 
@@ -2081,7 +2081,7 @@ void CheckVRamRead(int x, int y, int dx, int dy,BOOL bFront)
 // core read from vram
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUreadDataMem(uint32_t *pMem, int iSize)
+void DLLEXPORT GPUreadDataMem(uint32_t *pMem, int iSize)
 {
  int i;
 
@@ -2153,7 +2153,7 @@ ENDREAD:
  GPUIsIdle;
 }
 
-uint32_t CALLBACK GPUreadData(void)
+uint32_t DLLEXPORT GPUreadData(void)
 {
  uint32_t l;
  GPUreadDataMem(&l,1);
@@ -2238,7 +2238,7 @@ const unsigned char primTableCX[256] =
 // processes data send to GPU data register
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUwriteDataMem(uint32_t *pMem, int iSize)
+void DLLEXPORT GPUwriteDataMem(uint32_t *pMem, int iSize)
 {
  unsigned char command;
  uint32_t gdata=0;
@@ -2364,12 +2364,12 @@ ENDVRAM:
 
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUwriteData(uint32_t gdata)
+void DLLEXPORT GPUwriteData(uint32_t gdata)
 {
  GPUwriteDataMem(&gdata,1);
 }
 
-long CALLBACK GPUconfigure(void)
+long DLLEXPORT GPUconfigure(void)
 {
  return 0;
 }
@@ -2408,7 +2408,7 @@ static __inline BOOL CheckForEndlessLoop(uint32_t laddr)
 // core gives a dma chain to gpu: same as the gpuwrite interface funcs
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
+long DLLEXPORT GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 {
  uint32_t dmaMem;
  unsigned char * baseAddrB;
@@ -2448,7 +2448,7 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 // show about dlg
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUabout(void)
+void DLLEXPORT GPUabout(void)
 {
 }
 
@@ -2456,7 +2456,7 @@ void CALLBACK GPUabout(void)
 // We are ever fine ;)
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK GPUtest(void)
+long DLLEXPORT GPUtest(void)
 {
  // if test fails this function should return negative value for error (unable to continue)
  // and positive value for warning (can continue but output might be crappy)
@@ -2478,7 +2478,7 @@ typedef struct GPUFREEZETAG
 
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK GPUfreeze(uint32_t ulGetFreezeData,GPUFreeze_t * pF)
+long DLLEXPORT GPUfreeze(uint32_t ulGetFreezeData,GPUFreeze_t * pF)
 {
  if(ulGetFreezeData==2) 
   {
@@ -2766,7 +2766,7 @@ void PaintPicDot(unsigned char * p,unsigned char c)
 
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUgetScreenPic(unsigned char * pMem)
+void DLLEXPORT GPUgetScreenPic(unsigned char * pMem)
 {
  float XS,YS;int x,y,v;
  unsigned char * ps, * px, * pf;
@@ -2845,7 +2845,7 @@ void CALLBACK GPUgetScreenPic(unsigned char * pMem)
 
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUshowScreenPic(unsigned char * pMem)
+void DLLEXPORT GPUshowScreenPic(unsigned char * pMem)
 {
  DestroyPic();
  if(pMem==0) return;
@@ -2854,14 +2854,14 @@ void CALLBACK GPUshowScreenPic(unsigned char * pMem)
 
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUsetfix(uint32_t dwFixBits)
+void DLLEXPORT GPUsetfix(uint32_t dwFixBits)
 {
  dwEmuFixes=dwFixBits;
 }
 
 ////////////////////////////////////////////////////////////////////////
  
-void CALLBACK GPUvisualVibration(uint32_t iSmall, uint32_t iBig)
+void DLLEXPORT GPUvisualVibration(uint32_t iSmall, uint32_t iBig)
 {
  int iVibVal;
 
@@ -2881,19 +2881,19 @@ void CALLBACK GPUvisualVibration(uint32_t iSmall, uint32_t iBig)
 // main emu can set display infos (A/M/G/D) 
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK GPUdisplayFlags(uint32_t dwFlags)
+void DLLEXPORT GPUdisplayFlags(uint32_t dwFlags)
 {
  dwCoreFlags=dwFlags;
 }
 
-void CALLBACK GPUvBlank( int val )
+void DLLEXPORT GPUvBlank( int val )
 {
  vBlank = val;
  oddLines = oddLines ? FALSE : TRUE; // bit changes per frame when not interlaced
  //printf("VB %x (%x)\n", oddLines, vBlank);
 }
 
-void CALLBACK GPUhSync( int val ) {
+void DLLEXPORT GPUhSync( int val ) {
  // Interlaced mode - update bit every scanline
  if (PSXDisplay.Interlaced) {
    oddLines = (val%2 ? FALSE : TRUE);

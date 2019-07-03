@@ -26,5 +26,5 @@
 
 void SetupTimer(void);
 void RemoveTimer(void);
-void CALLBACK SPUplayADPCMchannel(xa_decode_t *xap);
-void CALLBACK SPUplayCDDAchannel(short *pcm, int bytes);
+void SPUplayADPCMchannel(xa_decode_t *xap);
+void SPUplayCDDAchannel(short *pcm, int bytes);

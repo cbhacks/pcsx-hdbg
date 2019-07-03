@@ -48,7 +48,7 @@ extern "C" {
 #define H_SPUoff1        0x0d8c
 #define H_SPUoff2        0x0d8e
 
-void CALLBACK SPUirq(void);
+void SPUirq(void);
 
 #ifdef __cplusplus
 }

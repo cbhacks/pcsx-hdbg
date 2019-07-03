@@ -407,13 +407,13 @@ void CheckFrameRate(void)                              // called in updatelace (
   }
 }
 
-void CALLBACK GPUsetSpeed(float newSpeed) {
+void DLLEXPORT GPUsetSpeed(float newSpeed) {
  if (newSpeed > 0 && newSpeed <= 1000) {
   speed = newSpeed;
  }
 }
 
-void CALLBACK GPUsetframelimit(unsigned long option)   // new EPSXE interface func: main emu can enable/disable fps limitation this way
+void DLLEXPORT GPUsetframelimit(unsigned long option)   // new EPSXE interface func: main emu can enable/disable fps limitation this way
 {
  bInitCap = TRUE;
 

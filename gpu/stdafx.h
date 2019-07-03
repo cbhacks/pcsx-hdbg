@@ -40,9 +40,9 @@
 #include <math.h> 
 
 #ifndef _WIN32
-
-#define CALLBACK /* */
-
+#define DLLEXPORT
+#else
+#define DLLEXPORT __attribute__ ((dllexport))
 #endif
 
 #include "gl_ext.h"

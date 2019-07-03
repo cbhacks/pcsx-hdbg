@@ -150,8 +150,8 @@ static unsigned int fsm2sec(const u8 *msf) {
 }
 
 
-extern long CALLBACK ISOinit(void);
-extern void CALLBACK SPUirq(void);
+extern long ISOinit(void);
+extern void SPUirq(void);
 extern SPUregisterCallback SPU_registerCallback;
 
 // A bit of a kludge, but it will get rid of the "macro redefined" warnings

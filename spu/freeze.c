@@ -71,7 +71,7 @@ extern int lastns;
 // SPUFREEZE: called by main emu on savestate load/save
 ////////////////////////////////////////////////////////////////////////
 
-long CALLBACK SPUfreeze(uint32_t ulFreezeMode,SPUFreeze_t * pF)
+long DLLEXPORT SPUfreeze(uint32_t ulFreezeMode,SPUFreeze_t * pF)
 {
  int i;SPUOSSFreeze_t * pFO;
 

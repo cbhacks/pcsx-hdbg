@@ -35,7 +35,7 @@
 // READ DMA (one value)
 ////////////////////////////////////////////////////////////////////////
 
-unsigned short CALLBACK SPUreadDMA(void)
+unsigned short DLLEXPORT SPUreadDMA(void)
 {
  unsigned short s=spuMem[spuAddr>>1];
  spuAddr+=2;
@@ -50,7 +50,7 @@ unsigned short CALLBACK SPUreadDMA(void)
 // READ DMA (many values)
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK SPUreadDMAMem(unsigned short * pusPSXMem,int iSize)
+void DLLEXPORT SPUreadDMAMem(unsigned short * pusPSXMem,int iSize)
 {
  int i;
  unsigned char crc=0;
@@ -103,7 +103,7 @@ void CALLBACK SPUreadDMAMem(unsigned short * pusPSXMem,int iSize)
 // WRITE DMA (one value)
 ////////////////////////////////////////////////////////////////////////
   
-void CALLBACK SPUwriteDMA(unsigned short val)
+void DLLEXPORT SPUwriteDMA(unsigned short val)
 {
  spuMem[spuAddr>>1] = val;                             // spu addr got by writeregister
 
@@ -117,7 +117,7 @@ void CALLBACK SPUwriteDMA(unsigned short val)
 // WRITE DMA (many values)
 ////////////////////////////////////////////////////////////////////////
 
-void CALLBACK SPUwriteDMAMem(unsigned short * pusPSXMem,int iSize)
+void DLLEXPORT SPUwriteDMAMem(unsigned short * pusPSXMem,int iSize)
 {
  int i;
 

@@ -115,8 +115,8 @@ static SDL_Thread *thread;
 
 uint32_t dwNewChannel=0;                          // flags for faster testing, if new channel starts
 
-void (CALLBACK *irqCallback)(void)=0;                  // func of main emu, called on spu irq
-void (CALLBACK *cddavCallback)(unsigned short,unsigned short)=0;
+void (*irqCallback)(void)=0;                  // func of main emu, called on spu irq
+void (*cddavCallback)(unsigned short,unsigned short)=0;
 
 // certain globals (were local before, but with the new timeproc I need em global)
 
@@ -1057,7 +1057,7 @@ static int MAINThread(void *arg)
 //  1 time every 'cycle' cycles... harhar
 
 long cpu_cycles;
-void CALLBACK SPUasync(unsigned long cycle)
+void DLLEXPORT SPUasync(unsigned long cycle)
 {
 	cpu_cycles += cycle;
 
@@ -1093,14 +1093,14 @@ void CALLBACK SPUasync(unsigned long cycle)
 // leave that func in the linux port, until epsxe linux is using
 // the async function as well
 
-void CALLBACK SPUupdate(void)
+void DLLEXPORT SPUupdate(void)
 {
  SPUasync(0);
 }
 
 // XA AUDIO
 
-void CALLBACK SPUplayADPCMchannel(xa_decode_t *xap)
+void DLLEXPORT SPUplayADPCMchannel(xa_decode_t *xap)
 {
  if(!xap)       return;
  if(!xap->freq) return;                                // no xa freq ? bye
@@ -1109,7 +1109,7 @@ void CALLBACK SPUplayADPCMchannel(xa_decode_t *xap)
 }
 
 // CDDA AUDIO
-void CALLBACK SPUplayCDDAchannel(short *pcm, int nbytes)
+void DLLEXPORT SPUplayCDDAchannel(short *pcm, int nbytes)
 {
  if (!pcm)      return;
  if (nbytes<=0) return;
@@ -1209,7 +1209,7 @@ void RemoveStreams(void)
 // INIT/EXIT STUFF
 
 // SPUINIT: this func will be called first by the main emu
-long CALLBACK SPUinit(void)
+long DLLEXPORT SPUinit(void)
 {
  spuMemC = (unsigned char *)spuMem;                    // just small setup
  memset((void *)&rvb, 0, sizeof(REVERBInfo));
@@ -1235,7 +1235,7 @@ long CALLBACK SPUinit(void)
 }
 
 // SPUOPEN: called by main emu after init
-long SPUopen(void)
+long DLLEXPORT SPUopen(void)
 {
  if (bSPUIsOpen) return 0;                             // security for some stupid main emus
 
@@ -1248,7 +1248,7 @@ long SPUopen(void)
 }
 
 // SPUCLOSE: called before shutdown
-long CALLBACK SPUclose(void)
+long DLLEXPORT SPUclose(void)
 {
  if (!bSPUIsOpen) return 0;                            // some security
 
@@ -1261,7 +1261,7 @@ long CALLBACK SPUclose(void)
 }
 
 // SPUSHUTDOWN: called by main emu on final exit
-long CALLBACK SPUshutdown(void)
+long DLLEXPORT SPUshutdown(void)
 {
  SPUclose();
  RemoveStreams();                                      // no more streaming
@@ -1270,47 +1270,47 @@ long CALLBACK SPUshutdown(void)
 }
 
 // SPUTEST: we don't test, we are always fine ;)
-long CALLBACK SPUtest(void)
+long DLLEXPORT SPUtest(void)
 {
  return 0;
 }
 
 // SPUCONFIGURE: call config dialog
-long CALLBACK SPUconfigure(void)
+long DLLEXPORT SPUconfigure(void)
 {
  return 0;
 }
 
 // SPUABOUT: show about window
-void CALLBACK SPUabout(void)
+void DLLEXPORT SPUabout(void)
 {
 }
 
 // SETUP CALLBACKS
 // this functions will be called once,
 // passes a callback that should be called on SPU-IRQ/cdda volume change
-void CALLBACK SPUregisterCallback(void (CALLBACK *callback)(void))
+void DLLEXPORT SPUregisterCallback(void (*callback)(void))
 {
  irqCallback = callback;
 }
 
-void CALLBACK SPUregisterCDDAVolume(void (CALLBACK *CDDAVcallback)(unsigned short,unsigned short))
+void DLLEXPORT SPUregisterCDDAVolume(void (*CDDAVcallback)(unsigned short,unsigned short))
 {
  cddavCallback = CDDAVcallback;
 }
 
 // COMMON PLUGIN INFO FUNCS
-char * CALLBACK PSEgetLibName(void)
+char * DLLEXPORT PSEgetLibName(void)
 {
  return _(libraryName);
 }
 
-unsigned long CALLBACK PSEgetLibType(void)
+unsigned long DLLEXPORT PSEgetLibType(void)
 {
  return  PSE_LT_SPU;
 }
 
-unsigned long CALLBACK PSEgetLibVersion(void)
+unsigned long DLLEXPORT PSEgetLibVersion(void)
 {
  return (1 << 16) | (1 << 8);
 }

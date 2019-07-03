@@ -34,7 +34,7 @@
 // TODO: use malloc and pointer to the array's center.
 float gteCoords[0x800 * 2][0x800 * 2][2];
 
-void CALLBACK GPUaddVertex(short sx, short sy, long long fx, long long fy, long long fz)
+void DLLEXPORT GPUaddVertex(short sx, short sy, long long fx, long long fy, long long fz)
 {
 	if(bGteAccuracy)
 	{

@@ -39,6 +39,9 @@ static void cleanup_lua(void)
     lua_close(L);
 }
 
+#ifdef main
+#undef main
+#endif
 int main(int argc, char **argv)
 {
     (void)argc;

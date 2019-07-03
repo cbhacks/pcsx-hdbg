@@ -75,15 +75,15 @@ void SysCloseLibrary(void *lib)
 
 void SysUpdate()
 {
+    PAD1_keypressed();
+    PAD2_keypressed();
+
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         if (ev.type == SDL_QUIT) {
             exit(EXIT_SUCCESS);
         }
     }
-
-    PAD1_keypressed();
-    PAD2_keypressed();
 }
 
 void SysRunGui()

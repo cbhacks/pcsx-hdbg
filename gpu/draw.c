@@ -38,6 +38,8 @@
 
 #include "gte_accuracy.h"
 
+#include <SDL.h>
+
 ////////////////////////////////////////////////////////////////////////////////////
 // defines
 
@@ -181,7 +183,7 @@ void GetExtInfos(void)
   {
    iUsePalTextures=1;                                  // -> wow, supported, get func pointer
 
-   glColorTableEXTEx=(PFNGLCOLORTABLEEXT)glXGetProcAddress("glColorTableEXT");
+   glColorTableEXTEx=(PFNGLCOLORTABLEEXT)SDL_GL_GetProcAddress("glColorTableEXT");
 
    if(glColorTableEXTEx==NULL) iUsePalTextures=0;      // -> ha, cheater... no func, no support
 
@@ -205,7 +207,7 @@ void SetExtGLFuncs(void)
     strstr((char *)glGetString(GL_EXTENSIONS),         // and blend_subtract available?
     "GL_EXT_blend_subtract"))
      {                                                 // -> get ogl blend function pointer
-      glBlendEquationEXTEx=(PFNGLBLENDEQU)glXGetProcAddress("glBlendEquationEXT");
+      glBlendEquationEXTEx=(PFNGLBLENDEQU)SDL_GL_GetProcAddress("glBlendEquationEXT");
      }
  else                                                  // no subtract blending?
   {

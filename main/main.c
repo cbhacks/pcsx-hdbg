@@ -24,11 +24,14 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+#include <hdbg_gui.h>
 #include <hdbg_cpu.h>
 #include <hdbg_mem.h>
 #include <hdbg_trap.h>
 
 #include "../core/r3000a.h"
+
+#include <SDL_syswm.h>
 
 lua_State *L;
 
@@ -74,6 +77,9 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    gui_init();
+    atexit(gui_quit);
+
     cpu_init();
     atexit(cpu_quit);
 
@@ -108,7 +114,14 @@ int main(int argc, char **argv)
     }
     atexit(ReleasePlugins);
 
-    unsigned long display;
+    SDL_SysWMinfo wminfo;
+    SDL_VERSION(&wminfo.version);
+    err = SDL_GetWindowWMInfo(gui_window, &wminfo);
+    if (err != SDL_TRUE) {
+        fprintf(stderr, "SDL_GetWindowWMInfo failed: %s\n", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+    unsigned long display = (unsigned long)wminfo.info.x11.display;
 
     err = CDR_open();
     if (err < 0) {
@@ -124,7 +137,7 @@ int main(int argc, char **argv)
     }
     atexit((void (*)(void))SPU_close);
 
-    err = GPU_open(&display, "PCSX-HDBG", NULL);
+    err = GPU_open(gui_finishframe, "PCSX-HDBG", NULL);
     if (err < 0) {
         fprintf(stderr, "Failed to initialize GPU.\n");
         return EXIT_FAILURE;

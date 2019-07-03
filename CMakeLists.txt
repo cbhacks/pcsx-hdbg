@@ -21,7 +21,6 @@ project (PCSXHDBG)
 
 find_package (ZLIB REQUIRED)
 find_package (SDL2 REQUIRED)
-find_package (X11 REQUIRED)
 find_package (OpenGL REQUIRED)
 
 add_library (pcsx-hdbg-core STATIC
@@ -93,11 +92,11 @@ add_library (pcsx-hdbg-gpu MODULE
 )
 target_include_directories (pcsx-hdbg-gpu
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE "${X11_INCLUDE_DIRS}"
+    PRIVATE "${SDL2_INCLUDE_DIRS}"
     PRIVATE "${OPENGL_INCLUDE_DIRS}"
 )
 target_link_libraries (pcsx-hdbg-gpu
-    PRIVATE "${X11_LIBRARIES}"
+    PRIVATE "${SDL2_LIBRARIES}"
     PRIVATE "${OPENGL_LIBRARIES}"
 )
 
@@ -161,6 +160,7 @@ target_link_libraries (lua
 add_executable (pcsx-hdbg
     main/main.c
     main/sys.c
+    main/gui.c
     main/cpu.c
     main/mem.c
     main/trap.c

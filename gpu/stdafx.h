@@ -38,9 +38,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <GL/gl.h>
-#include <GL/glx.h>
 #include <math.h> 
-#include <X11/cursorfont.h> 
 
 #define CALLBACK /* */
 

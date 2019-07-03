@@ -45,7 +45,6 @@ add_library (pcsx-hdbg-core STATIC
     core/psxmem.c
     core/r3000a.c
     core/sio.c
-    core/socket.c
     core/spu.c
 )
 target_include_directories (pcsx-hdbg-core

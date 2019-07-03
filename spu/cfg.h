@@ -25,5 +25,3 @@
  ***************************************************************************/
 
 void ReadConfig(void);
-
-void StartCfgTool(char * pCmdLine);

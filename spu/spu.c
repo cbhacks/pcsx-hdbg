@@ -28,6 +28,8 @@
 
 #define _IN_SPU
 
+#include <SDL.h>
+
 #include "externals.h"
 #include "cfg.h"
 #include "dsoundoss.h"
@@ -109,7 +111,7 @@ int             bThreadEnded=0;
 int             bSpuInit=0;
 int             bSPUIsOpen=0;
 
-static pthread_t thread = (pthread_t)-1;               // thread id (linux)
+static SDL_Thread *thread;
 
 uint32_t dwNewChannel=0;                          // flags for faster testing, if new channel starts
 
@@ -521,7 +523,7 @@ static INLINE int iGetInterpolationVal(int ch)
 
 ////////////////////////////////////////////////////////////////////////
 
-static void *MAINThread(void *arg)
+static int MAINThread(void *arg)
 {
  int s_1,s_2,fa,ns;
  int voldiv = iVolume;
@@ -1129,7 +1131,7 @@ void SetupTimer(void)
 
  if(!iUseTimer)                                        // linux: use thread
   {
-   pthread_create(&thread, NULL, MAINThread, NULL);
+   thread = SDL_CreateThread(MAINThread, NULL, NULL);
   }
 }
 
@@ -1140,9 +1142,8 @@ void RemoveTimer(void)
 
  if(!iUseTimer)                                        // linux tread?
   {
-   int i=0;
-   while(!bThreadEnded && i<2000) {usleep(1000L);i++;} // -> wait until thread has ended
-   if(thread!=(pthread_t)-1) {pthread_cancel(thread);thread=(pthread_t)-1;}  // -> cancel thread anyway
+   SDL_WaitThread(thread, NULL);
+   thread = NULL;
   }
 
  bThreadEnded=0;                                       // no more spu is running
@@ -1277,15 +1278,12 @@ long CALLBACK SPUtest(void)
 // SPUCONFIGURE: call config dialog
 long CALLBACK SPUconfigure(void)
 {
- StartCfgTool("configure");
-
  return 0;
 }
 
 // SPUABOUT: show about window
 void CALLBACK SPUabout(void)
 {
- StartCfgTool("about");
 }
 
 // SETUP CALLBACKS

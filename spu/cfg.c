@@ -40,37 +40,6 @@
 #include <sys/wait.h>
 #endif
 
-////////////////////////////////////////////////////////////////////////
-// START EXTERNAL CFG TOOL
-////////////////////////////////////////////////////////////////////////
-
-void StartCfgTool(char * pCmdLine)
-{
- FILE * cf;
- char filename[255];
-
- strcpy(filename,"cfgDFSound");
- cf=fopen(filename,"rb");
- if(cf!=NULL)
-  {
-   int pid;
-   fclose(cf);
-   pid=fork();
-   if(pid==0)
-    {
-     if(fork()==0)
-      {
-       execl("./cfgDFSound","cfgDFSound",pCmdLine,NULL);
-      }
-     exit(0);
-    }
-   else if(pid>0)
-    {
-     waitpid(pid,NULL,0);
-    }
-  }
-}
-
 /////////////////////////////////////////////////////////
 // READ LINUX CONFIG FILE
 /////////////////////////////////////////////////////////

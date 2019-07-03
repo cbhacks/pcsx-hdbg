@@ -187,11 +187,6 @@ print "Hello, world!"
 -- Example: Change starting level of NTSC-U Crash 2 to Ruination
 write8(0x800117E4, 0xF)
 
--- Example: Print a message on every NTSC-U Crash 2 GOOL RNG instruction
-trapexec(0x8003A368, function()
-    print("RNG(" .. v0 .. ", " .. v1 .. ")")
-end)
-
 -- Example: Make GOOL RNG always return the lower-bound input
 local rng_lastpc
 local rng_counter

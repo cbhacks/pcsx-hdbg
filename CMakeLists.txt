@@ -49,11 +49,11 @@ add_library (pcsx-hdbg-core STATIC
 )
 target_include_directories (pcsx-hdbg-core
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE "${ZLIB_INCLUDE_DIR}"
-    PRIVATE "${SDL2_INCLUDE_DIRS}"
+    PUBLIC "${ZLIB_INCLUDE_DIR}"
+    PUBLIC "${SDL2_INCLUDE_DIRS}"
 )
 target_link_libraries (pcsx-hdbg-core
-    PUBLIC "${ZLIB_LIBRARIES}"
+    PRIVATE "${ZLIB_LIBRARIES}"
 )
 
 add_library (pcsx-hdbg-spu MODULE
@@ -70,7 +70,7 @@ add_library (pcsx-hdbg-spu MODULE
 )
 target_include_directories (pcsx-hdbg-spu
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE "${SDL2_INCLUDE_DIRS}"
+    PUBLIC "${SDL2_INCLUDE_DIRS}"
 )
 target_link_libraries (pcsx-hdbg-spu
     PRIVATE "${SDL2_LIBRARIES}"
@@ -90,8 +90,8 @@ add_library (pcsx-hdbg-gpu MODULE
 )
 target_include_directories (pcsx-hdbg-gpu
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE "${SDL2_INCLUDE_DIRS}"
-    PRIVATE "${OPENGL_INCLUDE_DIRS}"
+    PUBLIC "${SDL2_INCLUDE_DIRS}"
+    PUBLIC "${OPENGL_INCLUDE_DIRS}"
 )
 target_link_libraries (pcsx-hdbg-gpu
     PRIVATE "${SDL2_LIBRARIES}"
@@ -149,9 +149,10 @@ add_executable (pcsx-hdbg
     main/trap.c
 )
 target_include_directories (pcsx-hdbg
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lua/src"
     PRIVATE "${SDL2_INCLUDE_DIRS}"
+    PRIVATE "${ZLIB_INCLUDE_DIR}"
 )
 target_compile_options (pcsx-hdbg
     PRIVATE "-Wall"

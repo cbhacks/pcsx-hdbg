@@ -716,8 +716,6 @@ static inline void execI() {
 
 	debugI();
 
-	if (Config.Debug) ProcessDebug();
-
 	psxRegs.pc += 4;
 	psxRegs.cycle += BIAS;
 

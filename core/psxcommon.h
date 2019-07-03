@@ -78,7 +78,6 @@ typedef uint8_t boolean;
 
 // Local includes
 #include "system.h"
-#include "debug.h"
 
 #if defined (__linux__) || defined (__MACOSX__)
 #define strnicmp strncasecmp
@@ -153,7 +152,6 @@ typedef struct {
 	u8      Cdda;
 	boolean HLE;
 	boolean SlowBoot;
-	boolean Debug;
 	boolean PsxOut;
 	boolean SpuIrq;
 	boolean RCntFix;

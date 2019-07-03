@@ -27,7 +27,6 @@ add_library (pcsx-hdbg-core STATIC
     core/cdriso.c
     core/cdrom.c
     core/cheat.c
-    core/debug.c
     core/decode_xa.c
     core/disr3000a.c
     core/gpu.c

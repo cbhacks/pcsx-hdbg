@@ -53,8 +53,6 @@ int psxInit() {
 	Log = 0;
 
 	if (psxMemInit() == -1) return -1;
-    
-    PauseDebugger();
 
 	return psxCpu->Init();
 }

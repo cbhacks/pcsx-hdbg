@@ -35,26 +35,16 @@ extern "C" {
 
 #include "psxcommon.h"
 
-#ifndef _WIN32
-
-typedef void* HWND;
+#ifdef _WIN32
+#include <windows.h>
+#else
 #define CALLBACK
+#endif
 
 typedef long (*GPUopen)(void (*)(void), char *, char *);
 typedef long (*SPUopen)(void);
 typedef long (*NETopen)(unsigned long *);
 typedef long (*SIO1open)(unsigned long *);
-
-#else
-
-#include <windows.h>
-
-typedef long (CALLBACK* GPUopen)(HWND);
-typedef long (CALLBACK* SPUopen)(HWND);
-typedef long (CALLBACK* NETopen)(HWND);
-typedef long (CALLBACK* SIO1open)(HWND);
-
-#endif
 
 #include "spu.h"
 

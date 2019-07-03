@@ -27,11 +27,10 @@
 #include <hdbg_gui.h>
 #include <hdbg_cpu.h>
 #include <hdbg_mem.h>
+#include <hdbg_pad.h>
 #include <hdbg_trap.h>
 
 #include "../core/r3000a.h"
-
-#include <SDL_syswm.h>
 
 lua_State *L;
 
@@ -86,13 +85,14 @@ int main(int argc, char **argv)
     mem_init();
     atexit(mem_quit);
 
+    pad_init();
+    atexit(pad_quit);
+
     trap_init();
     atexit(trap_quit);
 
     strcpy(Config.Spu, "libpcsx-hdbg-spu.so");
     strcpy(Config.Gpu, "libpcsx-hdbg-gpu.so");
-    strcpy(Config.Pad1, "libpcsx-hdbg-pad.so");
-    strcpy(Config.Pad2, "libpcsx-hdbg-pad.so");
     strcpy(Config.PluginsDir, ".");
     strcpy(Config.Bios, "HLE");
     strcpy(Config.Mcd1, "memcard1.dat");
@@ -114,15 +114,6 @@ int main(int argc, char **argv)
     }
     atexit(ReleasePlugins);
 
-    SDL_SysWMinfo wminfo;
-    SDL_VERSION(&wminfo.version);
-    err = SDL_GetWindowWMInfo(gui_window, &wminfo);
-    if (err != SDL_TRUE) {
-        fprintf(stderr, "SDL_GetWindowWMInfo failed: %s\n", SDL_GetError());
-        return EXIT_FAILURE;
-    }
-    unsigned long display = (unsigned long)wminfo.info.x11.display;
-
     err = CDR_open();
     if (err < 0) {
         fprintf(stderr, "Failed to initialize CDR.\n");
@@ -143,20 +134,6 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     atexit((void (*)(void))GPU_close);
-
-    err = PAD1_open(&display);
-    if (err < 0) {
-        fprintf(stderr, "Failed to initialize PAD1.\n");
-        return EXIT_FAILURE;
-    }
-    atexit((void (*)(void))PAD1_close);
-
-    err = PAD2_open(&display);
-    if (err < 0) {
-        fprintf(stderr, "Failed to initialize PAD2.\n");
-        return EXIT_FAILURE;
-    }
-    atexit((void (*)(void))PAD2_close);
 
     EmuReset();
 

@@ -22,6 +22,8 @@
 
 #include <SDL.h>
 
+#include <hdbg_pad.h>
+
 #include "../core/system.h"
 #include "../core/plugins.h"
 #include "../core/psxcommon.h"
@@ -75,13 +77,15 @@ void SysCloseLibrary(void *lib)
 
 void SysUpdate()
 {
-    PAD1_keypressed();
-    PAD2_keypressed();
-
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
-        if (ev.type == SDL_QUIT) {
+        switch (ev.type) {
+        case SDL_QUIT:
             exit(EXIT_SUCCESS);
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            pad_handlekey(ev.key.keysym.scancode, ev.type == SDL_KEYDOWN);
+            break;
         }
     }
 }

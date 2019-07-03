@@ -33,6 +33,8 @@
 #include "plugins.h"
 #include "cdriso.h"
 
+#include <hdbg_pad.h>
+
 static char IsoFile[MAXPATHLEN] = "";
 static char ExeFile[MAXPATHLEN] = "";
 static char AppPath[MAXPATHLEN] = "";		//Application path(== pcsxr.exe directory)
@@ -108,37 +110,11 @@ SPUregisterCallback   SPU_registerCallback;
 SPUasync              SPU_async;
 SPUplayCDDAchannel    SPU_playCDDAchannel;
 
-PADconfigure          PAD1_configure;
-PADabout              PAD1_about;
-PADinit               PAD1_init;
-PADshutdown           PAD1_shutdown;
-PADtest               PAD1_test;
-PADopen               PAD1_open;
-PADclose              PAD1_close;
-PADquery              PAD1_query;
-PADreadPort1          PAD1_readPort1;
-PADkeypressed         PAD1_keypressed;
 PADstartPoll          PAD1_startPoll;
 PADpoll               PAD1_poll;
-PADsetSensitive       PAD1_setSensitive;
-PADregisterVibration  PAD1_registerVibration;
-PADregisterCursor     PAD1_registerCursor;
 
-PADconfigure          PAD2_configure;
-PADabout              PAD2_about;
-PADinit               PAD2_init;
-PADshutdown           PAD2_shutdown;
-PADtest               PAD2_test;
-PADopen               PAD2_open;
-PADclose              PAD2_close;
-PADquery              PAD2_query;
-PADreadPort2          PAD2_readPort2;
-PADkeypressed         PAD2_keypressed;
 PADstartPoll          PAD2_startPoll;
 PADpoll               PAD2_poll;
-PADsetSensitive       PAD2_setSensitive;
-PADregisterVibration  PAD2_registerVibration;
-PADregisterCursor     PAD2_registerCursor;
 
 NETinit               NET_init;
 NETshutdown           NET_shutdown;
@@ -397,9 +373,6 @@ static int LoadSPUplugin(const char *SPUdll) {
 	return 0;
 }
 
-void *hPAD1Driver = NULL;
-void *hPAD2Driver = NULL;
-
 static unsigned char buf[256];
 unsigned char stdpar[10] = { 0x00, 0x41, 0x5a, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 unsigned char mousepar[8] = { 0x00, 0x12, 0x5a, 0xff, 0xff, 0xff, 0xff };
@@ -478,7 +451,9 @@ unsigned char _PADpoll(unsigned char value) {
 unsigned char CALLBACK PAD1__startPoll(int pad) {
     PadDataS padd;
 
-    PAD1_readPort1(&padd);
+    memset(&padd, 0, sizeof(padd));
+    padd.controllerType = PSE_PAD_TYPE_STANDARD;
+    padd.buttonStatus = pad_getbuttons();
 
     return _PADstartPoll(&padd);
 }
@@ -487,49 +462,9 @@ unsigned char CALLBACK PAD1__poll(unsigned char value) {
     return _PADpoll(value);
 }
 
-long CALLBACK PAD1__configure(void) { return 0; }
-void CALLBACK PAD1__about(void) {}
-long CALLBACK PAD1__test(void) { return 0; }
-long CALLBACK PAD1__query(void) { return 3; }
-long CALLBACK PAD1__keypressed() { return 0; }
-void CALLBACK PAD1__registerVibration(void (CALLBACK *callback)(unsigned long, unsigned long)) {}
-void CALLBACK PAD1__registerCursor(void (CALLBACK *callback)(int, int, int)) {}
-
-#define LoadPad1Sym1(dest, name) \
-	LoadSym(PAD1_##dest, PAD##dest, name, TRUE);
-
-#define LoadPad1SymN(dest, name) \
-	LoadSym(PAD1_##dest, PAD##dest, name, FALSE);
-
-#define LoadPad1Sym0(dest, name) \
-	LoadSym(PAD1_##dest, PAD##dest, name, FALSE); \
-	if (PAD1_##dest == NULL) PAD1_##dest = (PAD##dest) PAD1__##dest;
-
 static int LoadPAD1plugin(const char *PAD1dll) {
-	void *drv;
-
-	hPAD1Driver = SysLoadLibrary(PAD1dll);
-	if (hPAD1Driver == NULL) {
-		PAD1_configure = NULL;
-		SysMessage (_("Could not load Controller 1 plugin %s!\n%s"), PAD1dll, SysLibError());
-		return -1;
-	}
-	drv = hPAD1Driver;
-	LoadPad1Sym1(init, "PADinit");
-	LoadPad1Sym1(shutdown, "PADshutdown");
-	LoadPad1Sym1(open, "PADopen");
-	LoadPad1Sym1(close, "PADclose");
-	LoadPad1Sym0(query, "PADquery");
-	LoadPad1Sym1(readPort1, "PADreadPort1");
-	LoadPad1Sym0(configure, "PADconfigure");
-	LoadPad1Sym0(test, "PADtest");
-	LoadPad1Sym0(about, "PADabout");
-	LoadPad1Sym0(keypressed, "PADkeypressed");
-	LoadPad1Sym0(startPoll, "PADstartPoll");
-	LoadPad1Sym0(poll, "PADpoll");
-	LoadPad1SymN(setSensitive, "PADsetSensitive");
-    LoadPad1Sym0(registerVibration, "PADregisterVibration");
-    LoadPad1Sym0(registerCursor, "PADregisterCursor");
+    PAD1_startPoll = PAD1__startPoll;
+    PAD1_poll = PAD1__poll;
 
 	return 0;
 }
@@ -537,7 +472,7 @@ static int LoadPAD1plugin(const char *PAD1dll) {
 unsigned char CALLBACK PAD2__startPoll(int pad) {
 	PadDataS padd;
 
-	PAD2_readPort2(&padd);
+    memset(&padd, 0, sizeof(padd));
 
 	return _PADstartPoll(&padd);
 }
@@ -546,49 +481,9 @@ unsigned char CALLBACK PAD2__poll(unsigned char value) {
 	return _PADpoll(value);
 }
 
-long CALLBACK PAD2__configure(void) { return 0; }
-void CALLBACK PAD2__about(void) {}
-long CALLBACK PAD2__test(void) { return 0; }
-long CALLBACK PAD2__query(void) { return PSE_PAD_USE_PORT1 | PSE_PAD_USE_PORT2; }
-long CALLBACK PAD2__keypressed() { return 0; }
-void CALLBACK PAD2__registerVibration(void (CALLBACK *callback)(unsigned long, unsigned long)) {}
-void CALLBACK PAD2__registerCursor(void (CALLBACK *callback)(int, int, int)) {}
-
-#define LoadPad2Sym1(dest, name) \
-	LoadSym(PAD2_##dest, PAD##dest, name, TRUE);
-
-#define LoadPad2Sym0(dest, name) \
-	LoadSym(PAD2_##dest, PAD##dest, name, FALSE); \
-	if (PAD2_##dest == NULL) PAD2_##dest = (PAD##dest) PAD2__##dest;
-
-#define LoadPad2SymN(dest, name) \
-	LoadSym(PAD2_##dest, PAD##dest, name, FALSE);
-
 static int LoadPAD2plugin(const char *PAD2dll) {
-	void *drv;
-
-	hPAD2Driver = SysLoadLibrary(PAD2dll);
-	if (hPAD2Driver == NULL) {
-		PAD2_configure = NULL;
-		SysMessage (_("Could not load Controller 2 plugin %s!\n%s"), PAD2dll, SysLibError());
-		return -1;
-	}
-	drv = hPAD2Driver;
-	LoadPad2Sym1(init, "PADinit");
-	LoadPad2Sym1(shutdown, "PADshutdown");
-	LoadPad2Sym1(open, "PADopen");
-	LoadPad2Sym1(close, "PADclose");
-	LoadPad2Sym0(query, "PADquery");
-	LoadPad2Sym1(readPort2, "PADreadPort2");
-	LoadPad2Sym0(configure, "PADconfigure");
-	LoadPad2Sym0(test, "PADtest");
-	LoadPad2Sym0(about, "PADabout");
-	LoadPad2Sym0(keypressed, "PADkeypressed");
-	LoadPad2Sym0(startPoll, "PADstartPoll");
-	LoadPad2Sym0(poll, "PADpoll");
-	LoadPad2SymN(setSensitive, "PADsetSensitive");
-    LoadPad2Sym0(registerVibration, "PADregisterVibration");
-    LoadPad2Sym0(registerCursor, "PADregisterCursor");
+    PAD2_startPoll = PAD2__startPoll;
+    PAD2_poll = PAD2__poll;
 
 	return 0;
 }
@@ -787,10 +682,6 @@ int LoadPlugins() {
 	if (ret < 0) { SysMessage (_("Error initializing GPU plugin: %d"), ret); return -1; }
 	ret = SPU_init();
 	if (ret < 0) { SysMessage (_("Error initializing SPU plugin: %d"), ret); return -1; }
-	ret = PAD1_init(1);
-	if (ret < 0) { SysMessage (_("Error initializing Controller 1 plugin: %d"), ret); return -1; }
-	ret = PAD2_init(2);
-	if (ret < 0) { SysMessage (_("Error initializing Controller 2 plugin: %d"), ret); return -1; }
 
 	if (Config.UseNet) {
 		ret = NET_init();
@@ -816,16 +707,12 @@ void ReleasePlugins() {
 	if (hCDRDriver != NULL || cdrIsoActive()) CDR_shutdown();
 	if (hGPUDriver != NULL) GPU_shutdown();
 	if (hSPUDriver != NULL) SPU_shutdown();
-	if (hPAD1Driver != NULL) PAD1_shutdown();
-	if (hPAD2Driver != NULL) PAD2_shutdown();
 
 	if (Config.UseNet && hNETDriver != NULL) NET_shutdown();
 
 	if (hCDRDriver != NULL) SysCloseLibrary(hCDRDriver); hCDRDriver = NULL;
 	if (hGPUDriver != NULL) SysCloseLibrary(hGPUDriver); hGPUDriver = NULL;
 	if (hSPUDriver != NULL) SysCloseLibrary(hSPUDriver); hSPUDriver = NULL;
-	if (hPAD1Driver != NULL) SysCloseLibrary(hPAD1Driver); hPAD1Driver = NULL;
-	if (hPAD2Driver != NULL) SysCloseLibrary(hPAD2Driver); hPAD2Driver = NULL;
 
 	if (Config.UseNet && hNETDriver != NULL) {
 		SysCloseLibrary(hNETDriver); hNETDriver = NULL;

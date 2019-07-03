@@ -52,6 +52,7 @@ add_library (pcsx-hdbg-core STATIC
 target_include_directories (pcsx-hdbg-core
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE "${ZLIB_INCLUDE_DIRS}"
+    PRIVATE "${SDL2_INCLUDE_DIRS}"
 )
 target_link_libraries (pcsx-hdbg-core
     PUBLIC "${ZLIB_LIBRARIES}"
@@ -98,22 +99,6 @@ target_include_directories (pcsx-hdbg-gpu
 target_link_libraries (pcsx-hdbg-gpu
     PRIVATE "${SDL2_LIBRARIES}"
     PRIVATE "${OPENGL_LIBRARIES}"
-)
-
-add_library (pcsx-hdbg-pad MODULE
-    pad/analog.c
-    pad/cfg.c
-    pad/pad.c
-    pad/sdljoy.c
-    pad/util.c
-    pad/xkb.c
-)
-target_include_directories (pcsx-hdbg-pad
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE "${SDL2_INCLUDE_DIRS}"
-)
-target_link_libraries (pcsx-hdbg-pad
-    PRIVATE "${SDL2_LIBRARIES}"
 )
 
 add_library (lua STATIC
@@ -163,6 +148,7 @@ add_executable (pcsx-hdbg
     main/gui.c
     main/cpu.c
     main/mem.c
+    main/pad.c
     main/trap.c
 )
 target_include_directories (pcsx-hdbg
@@ -182,7 +168,6 @@ target_link_libraries (pcsx-hdbg
 add_dependencies (pcsx-hdbg
     pcsx-hdbg-gpu
     pcsx-hdbg-spu
-    pcsx-hdbg-pad
 )
 
 configure_file (

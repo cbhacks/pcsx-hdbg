@@ -87,12 +87,13 @@
 #define KEY_STEPDOWN        256
 #define KEY_TOGGLEFBREAD    512
 
+#define bool unsigned short
+
+#ifndef _WIN32
+
 #define FALSE 0
 #define TRUE  1
 #define BOOL unsigned short
-#ifndef bool
-#define bool unsigned short
-#endif
 
 #define LOWORD(l)           ((unsigned short)(l))
 #define HIWORD(l)           ((unsigned short)(((uint32_t)(l) >> 16) & 0xFFFF))
@@ -107,6 +108,8 @@ typedef struct RECTTAG
  int right;
  int bottom;
 }RECT;
+
+#endif
 
 typedef struct VRAMLOADTAG
 {

@@ -33,6 +33,8 @@
 #include <sys/wait.h>
 #endif
 
+#include <time.h>
+
 #define _IN_GPU
 
 #include "externals.h"
@@ -2367,63 +2369,8 @@ void CALLBACK GPUwriteData(uint32_t gdata)
  GPUwriteDataMem(&gdata,1);
 }
 
-////////////////////////////////////////////////////////////////////////
-// call config dlg
-////////////////////////////////////////////////////////////////////////
-
-void StartCfgTool(char *arg) // linux: start external cfg tool
-{
-	char cfg[256];
-	struct stat buf;
-
-	strcpy(cfg, "./cfgpeopsxgl");
-	if (stat(cfg, &buf) != -1) {
-		int pid = fork();
-		if (pid == 0) {
-			if (fork() == 0) {
-				execl(cfg, "cfgpeopsxgl", arg, NULL);
-			}
-			exit(0);
-		} else {
-			waitpid(pid, NULL, 0);
-		}
-		return;
-	}
-
-	strcpy(cfg, "./cfg/cfgpeopsxgl");
-	if (stat(cfg, &buf) != -1) {
-		int pid = fork();
-		if (pid == 0) {
-			if (fork() == 0) {
-				execl(cfg, "cfgpeopsxgl", arg, NULL);
-			}
-			exit(0);
-		} else {
-			waitpid(pid, NULL, 0);
-		}
-		return;
-	}
-
-	sprintf(cfg, "%s/.pcsxr/plugins/cfg/cfgpeopsxgl", getenv("HOME"));
-	if (stat(cfg, &buf) != -1) {
-		int pid = fork();
-		if (pid == 0) {
-			if (fork() == 0) {
-				execl(cfg, "cfgpeopsxgl", arg, NULL);
-			}
-			exit(0);
-		} else {
-			waitpid(pid, NULL, 0);
-		}
-		return;
-	}
-
-	printf("ERROR: cfgpeopsxgl file not found!\n");
-}
-
 long CALLBACK GPUconfigure(void)
 {
- StartCfgTool("configure");
  return 0;
 }
 
@@ -2503,7 +2450,6 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 
 void CALLBACK GPUabout(void)
 {
-	StartCfgTool("about");
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -2926,7 +2872,7 @@ void CALLBACK GPUvisualVibration(uint32_t iSmall, uint32_t iBig)
  if(iBig) iRumbleVal=max(4*iVibVal,min(15*iVibVal,((int)iBig  *iVibVal)/10));
  else     iRumbleVal=max(1*iVibVal,min( 3*iVibVal,((int)iSmall*iVibVal)/10));
 
- srand(timeGetTime());                                 // init rand (will be used in BufferSwap)
+ srand(time(NULL));                                 // init rand (will be used in BufferSwap)
 
  iRumbleTime=15;                                       // let the rumble last 16 buffer swaps
 }

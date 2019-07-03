@@ -37,6 +37,8 @@
 
 #define _IN_FPS
 
+#include <SDL.h>
+
 #include "externals.h"
 
 ////////////////////////////////////////////////////////////////////////
@@ -61,14 +63,7 @@ BOOL         bInitCap = TRUE;
 float        fps_skip = 0;
 float        fps_cur  = 0;
 
-#define TIMEBASE 100000
-
-unsigned long timeGetTime()
-{
- struct timeval tv;
- gettimeofday(&tv, 0);                                // well, maybe there are better ways
- return tv.tv_sec * 100000 + tv.tv_usec/10;           // to do that in linux, but at least it works
-}
+#define TIMEBASE 1000
 
 void FrameCap(void)
 {
@@ -79,7 +74,7 @@ void FrameCap(void)
  DWORD frTicks=(DWORD)(dwFrameRateTicks / speed);
 
   {
-   curticks = timeGetTime();
+   curticks = SDL_GetTicks();
    _ticks_since_last_update = curticks - lastticks;
 
     if((_ticks_since_last_update > TicksToWait) ||
@@ -95,7 +90,7 @@ void FrameCap(void)
     {
      while (Waiting) 
       {
-       curticks = timeGetTime(); 
+       curticks = SDL_GetTicks(); 
        _ticks_since_last_update = curticks - lastticks; 
        remTime = (TicksToWait - _ticks_since_last_update) * 1e6 / TIMEBASE;
        if ((_ticks_since_last_update > TicksToWait) ||
@@ -148,7 +143,7 @@ void FrameSkip(void)
        DWORD dwT=_ticks_since_last_update;             // -> that's the time of the last drawn frame
        dwLastLace+=dwLaceCnt;                          // -> and that's the number of updatelace since the start of the last drawn frame
 
-       curticks = timeGetTime();
+       curticks = SDL_GetTicks();
        _ticks_since_last_update= dwT+curticks - lastticks;
 
        dwWaitTime=dwLastLace*frTicks;                  // -> and now we calc the time the real psx would have needed
@@ -165,7 +160,7 @@ void FrameSkip(void)
            if (remTime > 2) {
             usleep(remTime - 2);
            }
-           curticks = timeGetTime();
+           curticks = SDL_GetTicks();
            _ticks_since_last_update = dwT+curticks - lastticks;
           }
         }
@@ -176,7 +171,7 @@ void FrameSkip(void)
           {
            iAdditionalSkip++;                          // -> inc our watchdog var
            dwLaceCnt=0;                                // -> reset lace count
-           lastticks = timeGetTime();
+           lastticks = SDL_GetTicks();
            return;                                     // -> done, we will skip next frame to get more speed
           }
         }
@@ -185,7 +180,7 @@ void FrameSkip(void)
      bInitCap=FALSE;                                   // -> ok, we have inited the frameskip func
      iAdditionalSkip=0;                                // -> init additional skip
      bSkipNextFrame=FALSE;                             // -> we don't skip the next frame
-     lastticks = timeGetTime();
+     lastticks = SDL_GetTicks();
      dwLaceCnt=0;                                      // -> and we start to count the laces 
      dwLastLace=0;      
      _ticks_since_last_update=0;
@@ -194,7 +189,7 @@ void FrameSkip(void)
 
    bSkipNextFrame=FALSE;                               // init the frame skip signal to 'no skipping' first
 
-   curticks = timeGetTime();
+   curticks = SDL_GetTicks();
    _ticks_since_last_update = curticks - lastticks;
 
    dwLastLace=dwLaceCnt;                               // store curr count (frame limitation helper)
@@ -226,12 +221,12 @@ void FrameSkip(void)
        if (remTime > 2) {
         usleep(remTime - 2);
        }
-       curticks = timeGetTime();
+       curticks = SDL_GetTicks();
        _ticks_since_last_update = curticks - lastticks;
       }
     }
 
-   lastticks = timeGetTime();
+   lastticks = SDL_GetTicks();
   }
 
  dwLaceCnt=0;                                          // init lace counter
@@ -246,7 +241,7 @@ void calcfps(void)
  static unsigned long  fpsskip_tck = 1;
  
   { 
-   curticks = timeGetTime(); 
+   curticks = SDL_GetTicks(); 
    _ticks_since_last_update=curticks-lastticks; 
  
    if(bUseFrameSkip && !bUseFrameLimit && _ticks_since_last_update) 
@@ -292,7 +287,7 @@ void PCFrameCap (void)
  
  while (Waiting) 
   {
-   curticks = timeGetTime(); 
+   curticks = SDL_GetTicks(); 
    _ticks_since_last_update = curticks - lastticks; 
    if ((_ticks_since_last_update > TicksToWait) ||  
        (curticks < lastticks)) 
@@ -311,7 +306,7 @@ void PCcalcfps(void)
  static float fps_acc = 0;
  float CurrentFPS=0;     
   
- curticks = timeGetTime(); 
+ curticks = SDL_GetTicks(); 
  _ticks_since_last_update=curticks-lastticks;
  if(_ticks_since_last_update) 
       CurrentFPS=(float)TIMEBASE/(float)_ticks_since_last_update;

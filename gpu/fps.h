@@ -33,5 +33,3 @@ void FrameSkip(void);
 void CheckFrameRate(void);
 void ReInitFrameCap(void);
 void SetAutoFrameCap(void);
-
-unsigned long timeGetTime();

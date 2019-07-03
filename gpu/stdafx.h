@@ -36,11 +36,14 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <GL/gl.h>
 #include <math.h> 
 
+#ifndef _WIN32
+
 #define CALLBACK /* */
+
+#endif
 
 #include "gl_ext.h"
 

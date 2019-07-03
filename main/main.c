@@ -91,9 +91,13 @@ int main(int argc, char **argv)
     trap_init();
     atexit(trap_quit);
 
-    strcpy(Config.Spu, "libpcsx-hdbg-spu.so");
-    strcpy(Config.Gpu, "libpcsx-hdbg-gpu.so");
-    strcpy(Config.PluginsDir, ".");
+#ifndef _WIN32
+    strcpy(Config.Spu, "./libpcsx-hdbg-spu.so");
+    strcpy(Config.Gpu, "./libpcsx-hdbg-gpu.so");
+#else
+    strcpy(Config.Spu, "libpcsx-hdbg-spu.dll");
+    strcpy(Config.Gpu, "libpcsx-hdbg-gpu.dll");
+#endif
     strcpy(Config.Bios, "HLE");
     strcpy(Config.Mcd1, "memcard1.dat");
     strcpy(Config.Mcd2, "memcard2.dat");

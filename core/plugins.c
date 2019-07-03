@@ -640,40 +640,32 @@ void CALLBACK clearDynarec(void) {
 
 int LoadPlugins() {
 	long ret;
-	char Plugin[MAXPATHLEN];
 
 	ReleasePlugins();
 
 	if (UsingIso()) {
 		LoadCDRplugin(NULL);
 	} else {
-		sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Cdr);
-		if (LoadCDRplugin(Plugin) == -1) return -1;
+		if (LoadCDRplugin(Config.Cdr) == -1) return -1;
 	}
 
-	sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Gpu);
-	if (LoadGPUplugin(Plugin) == -1) return -1;
+	if (LoadGPUplugin(Config.Gpu) == -1) return -1;
 
-	sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Spu);
-	if (LoadSPUplugin(Plugin) == -1) return -1;
+	if (LoadSPUplugin(Config.Spu) == -1) return -1;
 
-	sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Pad1);
-	if (LoadPAD1plugin(Plugin) == -1) return -1;
+	if (LoadPAD1plugin(Config.Pad1) == -1) return -1;
 
-	sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Pad2);
-	if (LoadPAD2plugin(Plugin) == -1) return -1;
+	if (LoadPAD2plugin(Config.Pad2) == -1) return -1;
 
 	if (strcmp("Disabled", Config.Net) == 0 || strcmp("", Config.Net) == 0)
 		Config.UseNet = FALSE;
 	else {
 		Config.UseNet = TRUE;
-		sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Net);
-		if (LoadNETplugin(Plugin) == -1) Config.UseNet = FALSE;
+		if (LoadNETplugin(Config.Net) == -1) Config.UseNet = FALSE;
 	}
 
 #ifdef ENABLE_SIO1API
-	sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Sio1);
-	if (LoadSIO1plugin(Plugin) == -1) return -1;
+	if (LoadSIO1plugin(Config.Sio1) == -1) return -1;
 #endif
 
 	ret = CDR_init();

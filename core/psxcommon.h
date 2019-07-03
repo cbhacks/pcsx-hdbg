@@ -142,7 +142,6 @@ typedef struct {
 	char Mcd2[MAXPATHLEN];
 	char Bios[MAXPATHLEN];
 	char BiosDir[MAXPATHLEN];
-	char PluginsDir[MAXPATHLEN];
 	char PatchesDir[MAXPATHLEN];
 	char IsoImgDir[MAXPATHLEN];
 	boolean Xa;

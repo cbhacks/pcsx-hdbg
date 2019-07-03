@@ -30,18 +30,12 @@
 
 #include "stdafx.h"
 
-#if defined (_MACGL)
-#include "drawgl.h"
-#elif !defined(_MACGL) && !defined(_WINDOWS)
-
 #include "config.h"
 
 #ifndef NOVMODE
 #include <X11/extensions/xf86vmode.h>
 static XF86VidModeModeInfo **modes=0;
 static int iOldMode=0;
-#endif
-
 #endif
 
 #if defined(__linux__)
@@ -61,42 +55,14 @@ static int iOldMode=0;
 #include "fps.h"
 #include "key.h"
 #include "gte_accuracy.h"
-#ifdef _WINDOWS
-#include "resource.h"
-#include "ssave.h"
-#endif
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #include <locale.h>
 #define _(x)  gettext(x)
 #define N_(x) (x)
-#elif defined(_MACOSX)
-#ifdef PCSXRCORE
-__private_extern char* Pcsxr_locale_text(char* toloc);
-#define _(String) Pcsxr_locale_text(String)
-#define N_(String) String
-#else
-#ifndef PCSXRPLUG
-#warning please define the plug being built to use Mac OS X localization!
-#define _(msgid) msgid
-#define N_(msgid) msgid
-#else
-//Kludge to get the preprocessor to accept PCSXRPLUG as a variable.
-#define PLUGLOC_x(x,y) x ## y
-#define PLUGLOC_y(x,y) PLUGLOC_x(x,y)
-#define PLUGLOC PLUGLOC_y(PCSXRPLUG,_locale_text)
-__private_extern char* PLUGLOC(char* toloc);
-#define _(String) PLUGLOC(String)
-#define N_(String) String
-#endif
-#endif
 #else
 #define _(x)  (x)
 #define N_(x) (x)
-#endif
-
-#ifdef _MACGL
-#include "drawgl.h"
 #endif
 
 ////////////////////////////////////////////////////////////////////////
@@ -132,10 +98,6 @@ GLfloat         gl_z=0.0f;
 BOOL            bNeedInterlaceUpdate=FALSE;
 BOOL            bNeedRGB24Update=FALSE;
 BOOL            bChangeWinMode=FALSE;
-
-#ifdef _WINDOWS
-extern HGLRC    GLCONTEXT;
-#endif
 
 uint32_t        ulStatusControl[256];
 
@@ -224,15 +186,8 @@ char * GPUgetLibInfos(void)
 // snapshot funcs (saves screen to bitmap / text infos into file)
 ////////////////////////////////////////////////////////////////////////
 
-#ifdef _WINDOWS
-char * GetConfigInfos(HWND hW)
-#else
 char * GetConfigInfos(int hW)
-#endif
 {
-#ifdef _WINDOWS
- HDC hdc;HGLRC hglrc;
-#endif
  char szO[2][4]={"off","on "};
  char szTxt[256];
  char * pB=(char *)malloc(32767);
@@ -245,16 +200,6 @@ char * GetConfigInfos(int hW)
  sprintf(szTxt,"Author: %s\r\n",PluginAuthor);
  strcat(pB,szTxt);
 
-#ifdef _WINDOWS
- if(hW)
-  {
-   hdc = GetDC(hW);
-   bSetupPixelFormat(hdc);
-   hglrc = wglCreateContext(hdc);
-   wglMakeCurrent(hdc, hglrc);
-  }
-#endif
-
  sprintf(szTxt,"Card vendor: %s\r\n",(char *)glGetString(GL_VENDOR));
  strcat(pB,szTxt);
  sprintf(szTxt,"GFX card: %s\r\n",(char *)glGetString(GL_RENDERER));
@@ -263,16 +208,6 @@ char * GetConfigInfos(int hW)
  strcat(pB,szTxt);
  //strcat(pB,(char *)glGetString(GL_EXTENSIONS));
  //strcat(pB,"\r\n\r\n");
-
-#ifdef _WINDOWS
- if(hW)
-  {
-   wglMakeCurrent(NULL, NULL);
-   wglDeleteContext(hglrc);
-   ReleaseDC(hW,hdc);
-  }
- //----------------------------------------------------//
-#endif
 
  if(hW && bWindowMode)
   sprintf(szTxt,"Resolution/Color:\r\n- %dx%d ",LOWORD(iWinSize),HIWORD(iWinSize));
@@ -411,11 +346,7 @@ void DoTextSnapShot(int iNum)
 {
  FILE *txtfile;char szTxt[256];char * pB;
 
-#ifdef _WINDOWS
- sprintf(szTxt,"snap\\pcsxr%04d.txt",iNum);
-#else
  sprintf(szTxt,"%s/pcsxr%04d.txt",getenv("HOME"),iNum);
-#endif
 
  if((txtfile=fopen(szTxt,"wb"))==NULL)
   return;                                              
@@ -480,11 +411,7 @@ void DoSnapShot(void)
  do
   {
    snapshotnr++;
-#ifdef _WINDOWS
-   sprintf(filename,"snap/pcsxr%04d.bmp",snapshotnr);
-#else
    sprintf(filename,"%s/pcsxr%04d.bmp",getenv("HOME"),snapshotnr);
-#endif
    bmpfile=fopen(filename,"rb");
    if(bmpfile==NULL)break;
    fclose(bmpfile);
@@ -512,9 +439,6 @@ void DoSnapShot(void)
  free(snapshotdumpmem);
 
  DoTextSnapShot(snapshotnr);
-#ifdef _WINDOWS
- MessageBeep((UINT)-1);
-#endif
 }       
 
 void CALLBACK GPUmakeSnapshot(void)
@@ -600,146 +524,6 @@ long CALLBACK GPUinit()
 
  return 0;
 }                             
-
-////////////////////////////////////////////////////////////////////////
-// GPU OPEN: funcs to open up the gpu display (Windows)
-////////////////////////////////////////////////////////////////////////
-
-#ifdef _WINDOWS
-
-void ChangeDesktop()                                   // change destop resolution
-{
- DEVMODE dv;long lRes,iTry=0;                       
-
- while(iTry<10)                                        // keep on hammering...
-  {
-   memset(&dv,0,sizeof(DEVMODE));
-   dv.dmSize=sizeof(DEVMODE);
-   dv.dmBitsPerPel=iColDepth;
-   dv.dmPelsWidth=iResX;
-   dv.dmPelsHeight=iResY;
-
-   dv.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
-
-   lRes=ChangeDisplaySettings(&dv,0);                  // ...hammering the anvil
-
-   if(lRes==DISP_CHANGE_SUCCESSFUL) return;
-   iTry++;Sleep(10);
-  }
-}
-
-////////////////////////////////////////////////////////////////////////
-// OPEN interface func: attention! 
-// some emus are calling this func in their main Window thread,
-// but all other interface funcs (to draw stuff) in a different thread!
-// that's a problem, since OGL is thread safe! Therefore we cannot 
-// initialize the OGL stuff right here, we simply set a "bIsFirstFrame = TRUE"
-// flag, to initialize OGL on the first real draw call.
-// btw, we also call this open func ourselfes, each time when the user 
-// is changing between fullscreen/window mode (ENTER key)
-// btw part 2: in windows the plugin gets the window handle from the
-// main emu, and doesn't create it's own window (if it would do it,
-// some PAD or SPU plugins would not work anymore)
-////////////////////////////////////////////////////////////////////////
-
-HMENU hPSEMenu=NULL;
-
-long CALLBACK GPUopen(HWND hwndGPU)                    
-{
- HDC hdc;RECT r;DEVMODE dv;
-
- hWWindow = hwndGPU;                                   // store hwnd globally
-
- InitKeyHandler();                                     // init key handler (subclass window)
-
- if(bChangeWinMode)                                    // user wants to change fullscreen/window mode?
-  {
-   ReadWinSizeConfig();                                // -> get sizes again
-  }
- else                                                  // first real startup
-  {
-   ReadConfig();                                       // -> read config from registry
-
-   SetFrameRateConfig();                               // -> setup frame rate stuff
-  }
-
- if(iNoScreenSaver) EnableScreenSaver(FALSE);          // at least we can try 
-
-
- memset(&dv,0,sizeof(DEVMODE));
- dv.dmSize=sizeof(DEVMODE);
- EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dv);
-
- bIsFirstFrame = TRUE;                                 // flag: we have to init OGL later in windows!
-
- if(bWindowMode)                                       // win mode?
-  {
-   DWORD dw=GetWindowLong(hWWindow, GWL_STYLE);        // -> adjust wnd style (owndc needed by some stupid ogl drivers)
-   dw&=~WS_THICKFRAME;
-   dw|=WS_BORDER|WS_CAPTION|CS_OWNDC;
-   SetWindowLong(hWWindow, GWL_STYLE, dw);
-
-   hPSEMenu=GetMenu(hWWindow);                         // -> hide emu menu (if any)
-   if(hPSEMenu!=NULL) SetMenu(hWWindow,NULL);
-
-   iResX=LOWORD(iWinSize);iResY=HIWORD(iWinSize);
-   ShowWindow(hWWindow,SW_SHOWNORMAL);
-
-   MoveWindow(hWWindow,                                // -> center wnd
-      GetSystemMetrics(SM_CXFULLSCREEN)/2-iResX/2,
-      GetSystemMetrics(SM_CYFULLSCREEN)/2-iResY/2,
-      iResX+GetSystemMetrics(SM_CXFIXEDFRAME)+3,
-      iResY+GetSystemMetrics(SM_CYFIXEDFRAME)+GetSystemMetrics(SM_CYCAPTION)+3,
-      TRUE);
-   UpdateWindow(hWWindow);                             // -> let windows do some update
-
-   if(dv.dmBitsPerPel==16 || dv.dmBitsPerPel==32)      // -> overwrite user color info with desktop color info
-    iColDepth=dv.dmBitsPerPel;
-  }
- else                                                  // fullscreen mode:
-  {
-   if(dv.dmBitsPerPel!=(unsigned int)iColDepth ||      // -> check, if we have to change resolution
-      dv.dmPelsWidth !=(unsigned int)iResX ||
-      dv.dmPelsHeight!=(unsigned int)iResY)
-    bChangeRes=TRUE; else bChangeRes=FALSE;
-
-   if(bChangeRes) ChangeDesktop();                     // -> change the res (had to do an own func because of some MS 'optimizations')
-
-   SetWindowLong(hWWindow, GWL_STYLE, CS_OWNDC);       // -> adjust wnd style as well (to be sure)
-                
-   hPSEMenu=GetMenu(hWWindow);                         // -> hide menu
-   if(hPSEMenu!=NULL) SetMenu(hWWindow,NULL);
-   ShowWindow(hWWindow,SW_SHOWMAXIMIZED);              // -> max mode
-  }
-
- rRatioRect.left   = rRatioRect.top=0;
- rRatioRect.right  = iResX;
- rRatioRect.bottom = iResY;
-
- r.left=r.top=0;r.right=iResX;r.bottom=iResY;          // hack for getting a clean black window until OGL gets initialized
- hdc = GetDC(hWWindow);
- FillRect(hdc,&r,(HBRUSH)GetStockObject(BLACK_BRUSH));
- bSetupPixelFormat(hdc);
- ReleaseDC(hWWindow,hdc);
-
- bDisplayNotSet = TRUE; 
- bSetClip=TRUE;
-
- SetFixes();                                           // setup game fixes
-
- InitializeTextureStore();                             // init texture mem
-
- resetGteVertices();
- 
-// lGPUstatusRet = 0x74000000;
-
-// with some emus, we could do the OGL init right here... oh my
-// if(bIsFirstFrame) GLinitialize();
-
- return 0;
-}
-
-#elif !defined (_MACGL)
 
 ////////////////////////////////////////////////////////////////////////
 // LINUX GPU OPEN: func to open up the gpu display (X stuff)
@@ -1064,22 +848,12 @@ void sysdep_create_display(void)                       // create display
   }
 }
 
-#endif // !defined(_MACGL)
-
-#ifndef _WINDOWS
-
-#if defined(_MACGL)
-extern char * pCaptionText;
-#endif
-
 ////////////////////////////////////////////////////////////////////////
 
 long GPUopen(unsigned long * disp,char * CapText,char * CfgFile)
 {
  pCaptionText=CapText;
-#if !defined (_MACGL)
  pConfigFile=CfgFile;
-#endif
 
  ReadConfig();                                         // read text file for config
 
@@ -1087,11 +861,7 @@ long GPUopen(unsigned long * disp,char * CapText,char * CfgFile)
 
  bIsFirstFrame = TRUE;                                 // we have to init later (well, no really... in Linux we do all in GPUopen)
 
-#if defined (_MACGL)
- unsigned long display = ulInitDisplay();
-#else
  sysdep_create_display();                              // create display
-#endif
  
  InitializeTextureStore();                             // init texture mem
 
@@ -1108,37 +878,11 @@ long GPUopen(unsigned long * disp,char * CapText,char * CfgFile)
  return -1;
 }
 
-#endif // ndef _WINDOWS
-
 
 
 ////////////////////////////////////////////////////////////////////////
 // close
 ////////////////////////////////////////////////////////////////////////
-
-#ifdef _WINDOWS
-
-long CALLBACK GPUclose()                               // WINDOWS CLOSE
-{
- ExitKeyHandler();
-
- GLcleanup();                                          // close OGL
-
- if(bChangeRes)                                        // change res back
-  ChangeDisplaySettings(NULL,0);
-
- if(hPSEMenu)                                          // set menu again
-  SetMenu(hWWindow,hPSEMenu);
-
- if(pGfxCardScreen) free(pGfxCardScreen);              // free helper memory
- pGfxCardScreen=0;
-
- if(iNoScreenSaver) EnableScreenSaver(TRUE);           // enable screen saver again
-
- return 0;
-}
-
-#else
 
 long GPUclose()                                        // LINUX CLOSE
 {
@@ -1146,15 +890,9 @@ long GPUclose()                                        // LINUX CLOSE
 
  if(pGfxCardScreen) free(pGfxCardScreen);              // free helper memory
  pGfxCardScreen=0;
-#if defined (_MACGL)
- CloseDisplay();
-#else
  osd_close_display();                                  // destroy display
-#endif
  return 0;
 }
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 // I shot the sheriff... last function called from emu 
@@ -1476,13 +1214,6 @@ void updateDisplay(void)                               // UPDATE DISPLAY
 {
  BOOL bBlur=FALSE;
 
-#ifdef _WINDOWS
- HDC hdc=GetDC(hWWindow);                              // windows:
- wglMakeCurrent(hdc,GLCONTEXT);                        // -> make context current again
-#endif
-#if defined (_MACGL)
- BringContextForward();
-#endif
  bFakeFrontBuffer=FALSE;
  bRenderFrontBuffer=FALSE;
 
@@ -1570,13 +1301,7 @@ void updateDisplay(void)                               // UPDATE DISPLAY
    if(!bSkipNextFrame) 
     {
      if(iDrawnSomething)
-#ifdef _WINDOWS
-      SwapBuffers(wglGetCurrentDC());                  // -> to skip or not to skip
-#elif defined(_MACGL)
-     DoBufferSwap();
-#else
       glXSwapBuffers(display,window);
-#endif
     }
    if(dwActFixes&0x180)                                // -> special old frame skipping: skip max one in a row
     {
@@ -1589,13 +1314,7 @@ void updateDisplay(void)                               // UPDATE DISPLAY
  else                                                  // no skip ?
   {
    if(iDrawnSomething)
-#ifdef _WINDOWS
-    SwapBuffers(wglGetCurrentDC());                    // -> swap
-#elif defined(_MACGL)
-   DoBufferSwap();
-#else
     glXSwapBuffers(display,window);
-#endif
   }
 
  iDrawnSomething=0;
@@ -1679,10 +1398,6 @@ void updateDisplay(void)                               // UPDATE DISPLAY
               rRatioRect.bottom+i4);            
   }
 
-#ifdef _WINDOWS
- ReleaseDC(hWWindow,hdc);                              // ! important !
-#endif
-
  if(ulKeybits&KEY_RESETTEXSTORE) ResetStuff();         // reset on gpu mode changes? do it before next frame is filled
 }
 
@@ -1709,22 +1424,8 @@ void updateFrontDisplay(void)
  if(gTexPicName) DisplayPic();
  if(ulKeybits&KEY_SHOWFPS) DisplayText();
 
-#ifdef _WINDOWS
-  {                                                    // windows: 
-   HDC hdc=GetDC(hWWindow);
-   wglMakeCurrent(hdc,GLCONTEXT);                      // -> make current again
-   if(iDrawnSomething)
-    SwapBuffers(wglGetCurrentDC());                    // -> swap
-   ReleaseDC(hWWindow,hdc);                            // -> ! important !
-  }
-#elif defined (_MACGL)
- if (iDrawnSomething){
-  DoBufferSwap();
- }
-#else
  if(iDrawnSomething)                                   // linux:
   glXSwapBuffers(display,window);
-#endif
 
  if(iBlurBuffer) UnBlurBackBuffer();
 }
@@ -1932,20 +1633,6 @@ void updateDisplayIfChanged(void)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// window mode <-> fullscreen mode (windows)
-////////////////////////////////////////////////////////////////////////
-
-#ifdef _WINDOWS
-void ChangeWindowMode(void)
- {
-  GPUclose();
-  bWindowMode=!bWindowMode;
-  GPUopen(hWWindow);
-  bChangeWinMode=FALSE;
- }
-#endif
-
-////////////////////////////////////////////////////////////////////////
 // swap update check (called by psx vsync function)
 ////////////////////////////////////////////////////////////////////////
 
@@ -2057,10 +1744,6 @@ void CALLBACK GPUupdateLace(void)
   {
    updateDisplay();
   }
-
-#if defined(_WINDOWS) || defined(_MACGL)
- if(bChangeWinMode) ChangeWindowMode();
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -2115,10 +1798,6 @@ uint32_t CALLBACK GPUreadStatus(void)
 void CALLBACK GPUwriteStatus(uint32_t gdata)
 {
  uint32_t lCommand=(gdata>>24)&0xff;
-
-#ifdef _WINDOWS
- if(bIsFirstFrame) GLinitialize();                     // real ogl startup (needed by some emus)
-#endif
 
  ulStatusControl[lCommand]=gdata;
 
@@ -3016,25 +2695,6 @@ void CALLBACK GPUwriteData(uint32_t gdata)
 // call config dlg
 ////////////////////////////////////////////////////////////////////////
 
-#ifdef _WINDOWS
-
-long CALLBACK GPUconfigure(void)
-{
- HWND hWP=GetActiveWindow();
- DialogBox(hInst,MAKEINTRESOURCE(IDD_CFGDLG),
-           hWP,(DLGPROC)CfgDlgProc);
-
- return 0;
-}
-
-#elif defined(_MACGL)
-long CALLBACK GPUconfigure(void)
-{
-	DlgProc();
-	return 0;
-}
-#else
-
 void StartCfgTool(char *arg) // linux: start external cfg tool
 {
 	char cfg[256];
@@ -3090,8 +2750,6 @@ long CALLBACK GPUconfigure(void)
  StartCfgTool("configure");
  return 0;
 }
-
-#endif // def _WINDOWS / _MACGL
 
 ////////////////////////////////////////////////////////////////////////
 // sets all kind of act fixes
@@ -3169,14 +2827,7 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 
 void CALLBACK GPUabout(void)
 {
-#ifdef _WINDOWS
-	HWND hWP=GetActiveWindow();                           // to be sure
-	DialogBox(hInst,MAKEINTRESOURCE(IDD_DIALOG_ABOUT), hWP,(DLGPROC)AboutDlgProc);
-#elif defined(_MACGL)
- AboutDlgProc();
-#else
 	StartCfgTool("about");
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -156,10 +156,6 @@ unsigned short (*PTCF[2]) (unsigned short);
 // texture cache implementation
 ////////////////////////////////////////////////////////////////////////
 
-#ifdef _WINDOWS
-#pragma pack(1)
-#endif
-
 // "texture window" cache entry
 
 typedef struct textureWndCacheEntryTag
@@ -184,10 +180,6 @@ typedef struct textureSubCacheEntryTagS
  unsigned char   cTexID;
  unsigned char   Opaque;
 } textureSubCacheEntryS;
-
-#ifdef _WINDOWS
-#pragma pack()
-#endif
 
 //---------------------------------------------
 

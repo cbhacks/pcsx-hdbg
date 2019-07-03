@@ -25,18 +25,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#if defined (_MACGL)
-// if you use it, you must include it.
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-#ifndef GL_COLOR_INDEX8_EXT
-#define GL_COLOR_INDEX8_EXT 0x80E5
-#endif
-#ifndef glColorTableEXT
-#define glColorTableEXT glColorTable
-#endif
-#endif
-
 #define MIRROR_TEST 1
 #define SCISSOR_TEST 1
 
@@ -99,8 +87,6 @@
 #define KEY_STEPDOWN        256
 #define KEY_TOGGLEFBREAD    512
 
-#ifndef _WINDOWS
-
 #define FALSE 0
 #define TRUE  1
 #define BOOL unsigned short
@@ -121,8 +107,6 @@ typedef struct RECTTAG
  int right;
  int bottom;
 }RECT;
-
-#endif
 
 typedef struct VRAMLOADTAG
 {
@@ -222,12 +206,6 @@ extern char *pConfigFile;
 
 #endif
 
-#ifdef _WINDOWS
-
-extern HINSTANCE hInst;
-
-#endif
-
 #ifndef _IN_DRAW
 
 extern int            iResX;
@@ -247,21 +225,13 @@ extern BOOL           bGLFastMovie;
 extern BOOL           bGLSoft;
 extern BOOL           bGLBlend;
 
-#if !defined(_MACGL)
 extern PFNGLBLENDEQU      glBlendEquationEXTEx;
 extern PFNGLCOLORTABLEEXT glColorTableEXTEx;
-#else // no pointers for mac (OSX >= 10.4.3)
-#define glBlendEquationEXTEx glBlendEquationEXT
-#define glColorTableEXTEx glColorTableEXT
-#endif
 
 extern unsigned char  gl_ux[8];
 extern unsigned char  gl_vy[8];
 extern OGLVertex      vertex[4];
 extern short          sprtY,sprtX,sprtH,sprtW;
-#ifdef _WINDOWS
-extern HWND           hWWindow;
-#endif
 extern BOOL           bIsFirstFrame;
 extern int            iWinSize;
 extern int            iZBufferDepth;

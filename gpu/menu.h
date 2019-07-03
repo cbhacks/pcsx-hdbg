@@ -45,10 +45,6 @@ void SwitchDispMenu(int iStep);
 void CreatePic(unsigned char * pMem);
 void DisplayPic(void);
 void DestroyPic(void);
-#ifdef _WINDOWS
-void ShowGpuPic(void);
-void ShowTextGpuPic(void);
-#endif
 void ShowGunCursor(void);
 
 #endif // _GL_MENU_H_

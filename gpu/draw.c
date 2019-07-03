@@ -38,12 +38,6 @@
 
 #include "gte_accuracy.h"
 
-#if defined(_MACGL)
-// if you use it, you must include it
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-#include "drawgl.h"
-#endif
 ////////////////////////////////////////////////////////////////////////////////////
 // defines
 
@@ -93,11 +87,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // draw globals; most will be initialized again later (by config or checks) 
 
-#ifdef _WINDOWS
-HDC            dcGlobal = NULL;
-HWND           hWWindow;
-#endif
-
 BOOL           bIsFirstFrame = TRUE;
 
 // resolution/ratio vars
@@ -144,67 +133,13 @@ BOOL               bGLExt;
 BOOL               bGLFastMovie=FALSE;
 BOOL               bGLSoft;
 BOOL               bGLBlend;
-#if defined (_MACGL) // always supported on OSX > 10.4.3
-#define glBlendEquationEXTEx glBlendEquationEXT
-#define glColorTableEXTEx glColorTableEXT
-#else
 PFNGLBLENDEQU      glBlendEquationEXTEx=NULL;
 PFNGLCOLORTABLEEXT glColorTableEXTEx=NULL;
-#endif
 // gfx card buffer infos
 
 int            iDepthFunc=0;
 int            iZBufferDepth=0;
 GLbitfield     uiBufferBits=GL_COLOR_BUFFER_BIT;
-
-////////////////////////////////////////////////////////////////////////
-// Set OGL pixel format
-////////////////////////////////////////////////////////////////////////
- 
-#ifdef _WINDOWS
-BOOL bSetupPixelFormat(HDC hDC)
-{
- int pixelformat;
- static PIXELFORMATDESCRIPTOR pfd = 
-  {
-   sizeof(PIXELFORMATDESCRIPTOR),    // size of this pfd
-    1,                               // version number
-    PFD_DRAW_TO_WINDOW |             // support window
-      PFD_SUPPORT_OPENGL |           // support OpenGL
-      PFD_DOUBLEBUFFER,              // double buffered
-    PFD_TYPE_RGBA,                   // RGBA type
-    16,                              // 16-bit color depth  (adjusted later)
-    0, 0, 0, 0, 0, 0,                // color bits ignored
-    0,                               // no alpha buffer
-    0,                               // shift bit ignored
-    0,                               // no accumulation buffer
-    0, 0, 0, 0,                      // accum bits ignored
-    0,                               // z-buffer    
-    0,
-    0,                               // no auxiliary buffer
-    PFD_MAIN_PLANE,                  // main layer
-    0,                               // reserved
-    0, 0, 0                          // layer masks ignored
-  };
- 
- pfd.cColorBits=iColDepth;                             // set user color depth
- pfd.cDepthBits=iZBufferDepth;                         // set user zbuffer (by psx mask)
-
- if((pixelformat=ChoosePixelFormat(hDC,&pfd))==0)     
-  {
-   MessageBox(NULL,"ChoosePixelFormat failed","Error",MB_OK);
-   return FALSE;
-  }
-
- if(SetPixelFormat(hDC,pixelformat, &pfd)==FALSE)
-  {
-   MessageBox(NULL,"SetPixelFormat failed","Error",MB_OK);
-   return FALSE;
-  }
-
- return TRUE;
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 // Get extension infos (f.e. pal textures / packed pixels)
@@ -238,32 +173,20 @@ void GetExtInfos(void)
       iClampType=GL_TO_EDGE_CLAMP;
  else iClampType=GL_CLAMP;
 
-#if !defined (_MACGL) // OSX > 10.4.3 defines this
  glColorTableEXTEx=(PFNGLCOLORTABLEEXT)NULL;           // init ogl palette func pointer
-#endif
 
-#ifndef __sun
  if(iGPUHeight!=1024 &&                                // no pal textures in ZN mode (height=1024)! 
     strstr((char *)glGetString(GL_EXTENSIONS),         // otherwise: check ogl support
     "GL_EXT_paletted_texture"))
   {
    iUsePalTextures=1;                                  // -> wow, supported, get func pointer
 
-#ifdef _WINDOWS
-   glColorTableEXTEx=(PFNGLCOLORTABLEEXT)wglGetProcAddress("glColorTableEXT");
-#elif defined (_MACGL)
-    // no prob, done already in OSX > 10.4.3
-#else
    glColorTableEXTEx=(PFNGLCOLORTABLEEXT)glXGetProcAddress("glColorTableEXT");
-#endif
 
    if(glColorTableEXTEx==NULL) iUsePalTextures=0;      // -> ha, cheater... no func, no support
 
   }
  else iUsePalTextures=0;
-#else
- iUsePalTextures=0;
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -278,39 +201,17 @@ void SetExtGLFuncs(void)
 
  //----------------------------------------------------//
 
-#ifdef _WINDOWS
- if((iForceVSync>=0) &&                                // force vsync?
-    strstr((char *)glGetString(GL_EXTENSIONS),         // and extension available?
-    "WGL_EXT_swap_control"))
-  {
-   PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT= 
-    (PFNWGLSWAPINTERVALFARPROC)wglGetProcAddress("wglSwapIntervalEXT");
-
-   if(wglSwapIntervalEXT) wglSwapIntervalEXT(iForceVSync);
-  }
-#endif
-#ifdef _MACGL
- SetVSync(iForceVSync);
-#endif
  if(iUseExts && !(dwActFixes&1024) &&                  // extensions wanted? and not turned off by game fix?
     strstr((char *)glGetString(GL_EXTENSIONS),         // and blend_subtract available?
     "GL_EXT_blend_subtract"))
      {                                                 // -> get ogl blend function pointer
-#ifdef _WINDOWS
-      glBlendEquationEXTEx=(PFNGLBLENDEQU)wglGetProcAddress("glBlendEquationEXT");
-#elif defined(_MACGL)
-    // no prob, OSX > 10.4.3 has this
-#else
       glBlendEquationEXTEx=(PFNGLBLENDEQU)glXGetProcAddress("glBlendEquationEXT");
-#endif
      }
  else                                                  // no subtract blending?
   {
    if(glBlendEquationEXTEx)                            // -> change to additive blending (if subract was active)
     glBlendEquationEXTEx(FUNC_ADD_EXT);
-#if !defined(_MACGL) // BTW, why set to null? strange...
    glBlendEquationEXTEx=(PFNGLBLENDEQU)NULL;           // -> no more blend function pointer
-#endif
   }
 
  //----------------------------------------------------//
@@ -535,23 +436,6 @@ void CreateScanLines(void)
     {
      uiScanLine=glGenLists(1);
      glNewList(uiScanLine,GL_COMPILE);
-     #ifdef _MACGL
-      // not mac specific, just commenting out to be friendly
-      // use it if you like
-      // this draws anti-aliased lines with user-chosen color
-      glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
-      glEnable(GL_BLEND | GL_LINE_SMOOTH);
-      glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-      glColor4f(iScanlineColor[0],iScanlineColor[1],iScanlineColor[2],iScanlineColor[3]);
-      glBegin(GL_LINES);
-      for(y=0;y<iResY;y+=2)
-      {
-       glVertex2f(0,y);
-       glVertex2f(iResX,y);
-      }
-      glEnd();
-      glPopAttrib();
-	 #else
 	      for(y=0;y<iResY;y+=2)
       {
        glBegin(GL_QUADS);
@@ -562,7 +446,6 @@ void CreateScanLines(void)
        glEnd();
       }
      
-    #endif
     glEndList();
     }
   }
@@ -572,25 +455,8 @@ void CreateScanLines(void)
 // Initialize OGL
 ////////////////////////////////////////////////////////////////////////
 
-#ifdef _WINDOWS    
-HGLRC GLCONTEXT=NULL;
-#endif
-
 int GLinitialize() 
 {
-#ifdef _WINDOWS
- HGLRC objectRC;
- // init
- dcGlobal = GetDC(hWWindow);                           // FIRST: dc/rc stuff
- objectRC = wglCreateContext(dcGlobal); 
- GLCONTEXT=objectRC;
- wglMakeCurrent(dcGlobal, objectRC);
- // CheckWGLExtensions(dcGlobal);
- if(bWindowMode) ReleaseDC(hWWindow,dcGlobal);         // win mode: release dc again
-#endif
-#if defined (_MACGL)
- BringContextForward();
-#endif
  glViewport(rRatioRect.left,                           // init viewport by ratio rect
             iResY-(rRatioRect.top+rRatioRect.bottom),
             rRatioRect.right, 
@@ -688,14 +554,6 @@ int GLinitialize()
  glPixelTransferi(GL_ALPHA_SCALE, 1);
  glPixelTransferi(GL_ALPHA_BIAS, 0);                                                  
 
-#ifdef _WINDOWS
-                                                       // detect Windows hw/sw mode (just for info)
- if(!strcmp("Microsoft Corporation",(LPTSTR)glGetString(GL_VENDOR)) &&
-    !strcmp("GDI Generic",          (LPTSTR)glGetString(GL_RENDERER)))
-      bGLSoft=TRUE;
- else bGLSoft=FALSE;
-#endif
-
  glFlush();                                            // we are done...
  glFinish();                           
 
@@ -737,13 +595,6 @@ void GLcleanup()
   }
 
  CleanupTextureStore();                                // bye textures
-
-#ifdef _WINDOWS 
- wglMakeCurrent(NULL, NULL);                           // bye context
- if(GLCONTEXT) wglDeleteContext(GLCONTEXT);
- if(!bWindowMode && dcGlobal) 
-  ReleaseDC(hWWindow,dcGlobal);
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////

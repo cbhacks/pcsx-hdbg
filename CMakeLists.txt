@@ -49,7 +49,7 @@ add_library (pcsx-hdbg-core STATIC
 )
 target_include_directories (pcsx-hdbg-core
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    PRIVATE "${ZLIB_INCLUDE_DIRS}"
+    PRIVATE "${ZLIB_INCLUDE_DIR}"
     PRIVATE "${SDL2_INCLUDE_DIRS}"
 )
 target_link_libraries (pcsx-hdbg-core

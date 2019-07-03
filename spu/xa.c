@@ -254,16 +254,12 @@ static INLINE void MixXA(void)
 // small linux time helper... only used for watchdog
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef _WINDOWS
-
 unsigned long timeGetTime_spu()
 {
  struct timeval tv;
  gettimeofday(&tv, 0);                                 // well, maybe there are better ways
  return tv.tv_sec * 1000 + tv.tv_usec/1000;            // to do that, but at least it works
 }
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 // FEED XA 
@@ -468,13 +464,8 @@ static INLINE void FeedCDDA(unsigned char *pcm, int nBytes)
    while(CDDAFeed==CDDAPlay-1||
          (CDDAFeed==CDDAEnd-1&&CDDAPlay==CDDAStart))
    {
-#ifdef _WINDOWS
-    if (!iUseTimer) Sleep(1);
-    else return;
-#else
     if (!iUseTimer) usleep(1000);
     else return;
-#endif
    }
    *CDDAFeed++=(*pcm | (*(pcm+1)<<8) | (*(pcm+2)<<16) | (*(pcm+3)<<24));
    nBytes-=4;

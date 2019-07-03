@@ -33,39 +33,11 @@
 #include "dsoundoss.h"
 #include "regs.h"
 
-#ifdef _WINDOWS
-#include "debug.h"
-#include "record.h"
-#elif defined(_MACOSX)
-#include "maccfg.h"
-#endif
-
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #include <locale.h>
 #define _(x)  gettext(x)
 #define N_(x) (x)
-//If running under Mac OS X, use the Localizable.strings file instead.
-#elif defined(_MACOSX)
-#ifdef PCSXRCORE
-__private_extern char* Pcsxr_locale_text(char* toloc);
-#define _(String) Pcsxr_locale_text(String)
-#define N_(String) String
-#else
-#ifndef PCSXRPLUG
-#warning please define the plug being built to use Mac OS X localization!
-#define _(msgid) msgid
-#define N_(msgid) msgid
-#else
-//Kludge to get the preprocessor to accept PCSXRPLUG as a variable.
-#define PLUGLOC_x(x,y) x ## y
-#define PLUGLOC_y(x,y) PLUGLOC_x(x,y)
-#define PLUGLOC PLUGLOC_y(PCSXRPLUG,_locale_text)
-__private_extern char* PLUGLOC(char* toloc);
-#define _(String) PLUGLOC(String)
-#define N_(String) String
-#endif
-#endif
 #else
 #define _(x)  (x)
 #define N_(x) (x)
@@ -137,14 +109,7 @@ int             bThreadEnded=0;
 int             bSpuInit=0;
 int             bSPUIsOpen=0;
 
-#ifdef _WINDOWS
-HWND    hWMain=0;                                      // window handle
-HWND    hWDebug=0;
-HWND    hWRecord=0;
-static HANDLE   hMainThread;
-#else
 static pthread_t thread = (pthread_t)-1;               // thread id (linux)
-#endif
 
 uint32_t dwNewChannel=0;                          // flags for faster testing, if new channel starts
 
@@ -556,11 +521,7 @@ static INLINE int iGetInterpolationVal(int ch)
 
 ////////////////////////////////////////////////////////////////////////
 
-#ifdef _WINDOWS
-static VOID CALLBACK MAINProc(UINT nTimerId, UINT msg, DWORD dwUser, DWORD dwParam1, DWORD dwParam2)
-#else
 static void *MAINThread(void *arg)
-#endif
 {
  int s_1,s_2,fa,ns;
  int voldiv = iVolume;
@@ -594,19 +555,8 @@ static void *MAINThread(void *arg)
     {
      iSecureStart=0;                                   // reset secure
 
-#ifdef _WINDOWS
-     if(iUseTimer)                                     // no-thread mode?
-      {
-       if(iUseTimer==1)                                // -> ok, timer mode 1: setup a oneshot timer of x ms to wait
-        timeSetEvent(PAUSE_W,1,MAINProc,0,TIME_ONESHOT);
-       return;                                         // -> and done this time (timer mode 1 or 2)
-      }
-                                                       // win thread mode:
-     Sleep(PAUSE_W);                                   // sleep for x ms (win)
-#else
      if(iUseTimer) return 0;                           // linux no-thread mode? bye
      usleep(PAUSE_L);                                  // else sleep for x ms (linux)
-#endif
 
      if(dwNewChannel) iSecureStart=1;                  // if a new channel kicks in (or, of course, sound buffer runs low), we will leave the loop
     }
@@ -930,21 +880,13 @@ static void *MAINThread(void *arg)
 
              while(iSpuAsyncWait && !bEndThread &&
                    timeGetTime_spu()<dwWatchTime)
-#ifdef _WINDOWS
-                 Sleep(1);
-#else
                  usleep(1000L);
-#endif
             }
            else
             {
              lastns=ns+1;
 
-#ifdef _WINDOWS
-             return;
-#else
              return 0;
-#endif
            }
          }
 
@@ -1106,24 +1048,8 @@ static void *MAINThread(void *arg)
 
  bThreadEnded = 1;
 
-#ifndef _WINDOWS
- return 0;
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////
-// WINDOWS THREAD... simply calls the timer func and stays forever :)
-////////////////////////////////////////////////////////////////////////
-
-#ifdef _WINDOWS
-
-DWORD WINAPI MAINThreadEx(LPVOID lpParameter)
-{
- MAINProc(0,0,0,0,0);
  return 0;
 }
-
-#endif
 
 // SPU ASYNC... even newer epsxe func
 //  1 time every 'cycle' cycles... harhar
@@ -1140,19 +1066,6 @@ void CALLBACK SPUasync(unsigned long cycle)
    iSpuAsyncWait=0;
   }
 
-#ifdef _WINDOWS
- if(iDebugMode==2)
-  {
-   if(IsWindow(hWDebug)) DestroyWindow(hWDebug);
-   hWDebug=0;iDebugMode=0;
-  }
- if(iRecordMode==2)
-  {
-   if(IsWindow(hWRecord)) DestroyWindow(hWRecord);
-   hWRecord=0;iRecordMode=0;
-  }
-#endif
-
  if(iUseTimer==2)                                      // special mode, only used in Linux by this spu (or if you enable the experimental Windows mode)
   {
    if(!bSpuInit) return;                               // -> no init, no call
@@ -1160,11 +1073,7 @@ void CALLBACK SPUasync(unsigned long cycle)
 	 // note: usable precision difference (not using interval_time)
 	 while( cpu_cycles >= CPU_CLOCK / 44100 * NSSIZE )
 	 {
-	#ifdef _WINDOWS
-		 MAINProc(0,0,0,0,0);                                // -> experimental win mode... not really tested... don't like the drawbacks
-	#else
 		 MAINThread(0);                                      // -> linux high-compat mode
-	#endif
 
 	  if (iSpuAsyncWait)
 	    break;
@@ -1218,32 +1127,10 @@ void SetupTimer(void)
  bThreadEnded=0;
  bSpuInit=1;                                           // flag: we are inited
 
-#ifdef _WINDOWS
-
- if(iUseTimer==1)                                      // windows: use timer
-  {
-   timeBeginPeriod(1);
-   timeSetEvent(1,1,MAINProc,0,TIME_ONESHOT);
-  }
- else
- if(iUseTimer==0)                                      // windows: use thread
-  {
-   //_beginthread(MAINThread,0,NULL);
-   DWORD dw;
-   hMainThread=CreateThread(NULL,0,MAINThreadEx,0,0,&dw);
-   SetThreadPriority(hMainThread,
-                     //THREAD_PRIORITY_TIME_CRITICAL);
-                     THREAD_PRIORITY_HIGHEST);
-  }
-
-#else
-
  if(!iUseTimer)                                        // linux: use thread
   {
    pthread_create(&thread, NULL, MAINThread, NULL);
   }
-
-#endif
 }
 
 // REMOVETIMER: kill threads/timers
@@ -1251,24 +1138,12 @@ void RemoveTimer(void)
 {
  bEndThread=1;                                         // raise flag to end thread
 
-#ifdef _WINDOWS
-
- if(iUseTimer!=2)                                      // windows thread?
-  {
-   while(!bThreadEnded) {Sleep(5L);}                   // -> wait till thread has ended
-   Sleep(5L);
-  }
- if(iUseTimer==1) timeEndPeriod(1);                    // windows timer? stop it
-
-#else
  if(!iUseTimer)                                        // linux tread?
   {
    int i=0;
    while(!bThreadEnded && i<2000) {usleep(1000L);i++;} // -> wait until thread has ended
    if(thread!=(pthread_t)-1) {pthread_cancel(thread);thread=(pthread_t)-1;}  // -> cancel thread anyway
   }
-
-#endif
 
  bThreadEnded=0;                                       // no more spu is running
  bSpuInit=0;
@@ -1359,44 +1234,14 @@ long CALLBACK SPUinit(void)
 }
 
 // SPUOPEN: called by main emu after init
-#ifdef _WINDOWS
-long CALLBACK SPUopen(HWND hW)
-#else
 long SPUopen(void)
-#endif
 {
  if (bSPUIsOpen) return 0;                             // security for some stupid main emus
-
-#ifdef _WINDOWS
- LastWrite=0xffffffff;LastPlay=0;                      // init some play vars
- if(!IsWindow(hW)) hW=GetActiveWindow();
- hWMain = hW;                                          // store hwnd
-#endif
 
  SetupSound();                                         // setup sound (before init!)
  SetupTimer();                                         // timer for feeding data
 
  bSPUIsOpen = 1;
-
-#ifdef _WINDOWS
- if(iDebugMode)                                        // windows debug dialog
-  {
-   hWDebug=CreateDialog(hInst,MAKEINTRESOURCE(IDD_DEBUG),
-                        NULL,(DLGPROC)DebugDlgProc);
-   SetWindowPos(hWDebug,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-   UpdateWindow(hWDebug);
-   SetFocus(hWMain);
-  }
-
- if(iRecordMode)                                       // windows recording dialog
-  {
-   hWRecord=CreateDialog(hInst,MAKEINTRESOURCE(IDD_RECORD),
-                        NULL,(DLGPROC)RecordDlgProc);
-   SetWindowPos(hWRecord,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-   UpdateWindow(hWRecord);
-   SetFocus(hWMain);
-  }
-#endif
 
  return PSE_SPU_ERR_SUCCESS;
 }
@@ -1407,13 +1252,6 @@ long CALLBACK SPUclose(void)
  if (!bSPUIsOpen) return 0;                            // some security
 
  bSPUIsOpen = 0;                                       // no more open
-
-#ifdef _WINDOWS
- if(IsWindow(hWDebug)) DestroyWindow(hWDebug);
- hWDebug=0;
- if(IsWindow(hWRecord)) DestroyWindow(hWRecord);
- hWRecord=0;
-#endif
 
  RemoveTimer();                                        // no more feeding
  RemoveSound();                                        // no more sound handling
@@ -1439,14 +1277,7 @@ long CALLBACK SPUtest(void)
 // SPUCONFIGURE: call config dialog
 long CALLBACK SPUconfigure(void)
 {
-#if defined (_WINDOWS)
- DialogBox(hInst,MAKEINTRESOURCE(IDD_CFGDLG),
-           GetActiveWindow(),(DLGPROC)DSoundDlgProc);
-#elif defined (_MACOSX)
- return DoConfiguration();
-#else
  StartCfgTool("configure");
-#endif
 
  return 0;
 }
@@ -1454,14 +1285,7 @@ long CALLBACK SPUconfigure(void)
 // SPUABOUT: show about window
 void CALLBACK SPUabout(void)
 {
-#if defined (_WINDOWS)
- DialogBox(hInst,MAKEINTRESOURCE(IDD_ABOUT),
-           GetActiveWindow(),(DLGPROC)AboutDlgProc);
-#elif defined (_MACOSX)
- DoAbout();
-#else
  StartCfgTool("about");
-#endif
 }
 
 // SETUP CALLBACKS

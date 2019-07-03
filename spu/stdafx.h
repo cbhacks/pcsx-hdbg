@@ -24,29 +24,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifdef _WINDOWS
-
-#define WIN32_LEAN_AND_MEAN
-#define STRICT
-#include <windows.h>
-#include <windowsx.h>
-#include "mmsystem.h"
-#include <process.h>
-#include <stdlib.h>
-
-#ifndef INLINE
-#define INLINE __inline
-#endif
-
-#include "resource.h"
-
-#pragma warning (disable:4996)
-
-#else
-
-#ifndef _MACOSX
 #include "config.h"
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -70,8 +48,6 @@
 
 #ifndef INLINE
 #define INLINE inline
-#endif
-
 #endif
 
 #if defined (__GNUC__) || defined (__clang__)

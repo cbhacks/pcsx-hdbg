@@ -29,8 +29,4 @@ void RemoveSound(void);
 unsigned long SoundGetBytesBuffered(void);
 void SoundFeedStreamData(unsigned char* pSound,long lBytes);
 
-#ifdef _WINDOWS
-#define timeGetTime_spu timeGetTime
-#else
 unsigned long timeGetTime_spu();
-#endif

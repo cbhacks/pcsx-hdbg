@@ -54,7 +54,6 @@ target_include_directories (pcsx-hdbg-core
 )
 target_link_libraries (pcsx-hdbg-core
     PUBLIC "${ZLIB_LIBRARIES}"
-    PUBLIC "rt"
 )
 
 add_library (pcsx-hdbg-spu MODULE

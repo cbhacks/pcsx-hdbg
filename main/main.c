@@ -39,6 +39,17 @@ static void cleanup_lua(void)
     lua_close(L);
 }
 
+static _Noreturn void panic_lua(void)
+{
+    const char *msg = lua_tostring(L, -1);
+    if (msg) {
+        fprintf(stderr, "Error in internal lua scripts: %s\n", msg);
+    } else {
+        fprintf(stderr, "Error in internal lua scripts; no error message\n");
+    }
+    exit(EXIT_FAILURE);
+}
+
 #ifdef main
 #undef main
 #endif
@@ -68,15 +79,9 @@ int main(int argc, char **argv)
 
     luaL_openlibs(L);
 
-    err = luaL_loadfile(L, "script.lua");
+    err = luaL_loadfile(L, "init.lua");
     if (err != LUA_OK) {
-        const char *msg = lua_tostring(L, -1);
-        if (msg) {
-            fprintf(stderr, "Error loading script.lua: %s\n", msg);
-        } else {
-            fprintf(stderr, "Error loading script.lua; no error message\n");
-        }
-        return EXIT_FAILURE;
+        panic_lua();
     }
 
     gui_init();
@@ -151,13 +156,7 @@ int main(int argc, char **argv)
 
     err = lua_pcall(L, 0, 0, 0);
     if (err != LUA_OK) {
-        const char *msg = lua_tostring(L, -1);
-        if (msg) {
-            fprintf(stderr, "Error executing script.lua: %s\n", msg);
-        } else {
-            fprintf(stderr, "Error executing script.lua; no error message\n");
-        }
-        return EXIT_FAILURE;
+        panic_lua();
     }
 
     psxCpu->Execute();

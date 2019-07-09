@@ -169,6 +169,12 @@ add_dependencies (pcsx-hdbg
 )
 
 configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/init.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/init.lua"
+    COPYONLY
+)
+
+configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/script.lua"
     "${CMAKE_CURRENT_BINARY_DIR}/script.lua"
     COPYONLY

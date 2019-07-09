@@ -228,10 +228,24 @@ trapexec(0x8003A3B4, function()
     end
 end)
 
+local c2_scus = {
+    chunkinfos = 0x800675B4,
+    chunkloadfn = 0x800125F8,
+    chunkunloadfn = 0x80012A20
+}
+
+local c2_sces = {
+    chunkinfos = 0x8006784C,
+    chunkloadfn = 0x800126BC,
+    chunkunloadfn = 0x80012AE4
+}
+
+local game = c2_scus
+
 -- Example: Print chunk load/unload messages
-trapexec(0x800125F8, function()
+trapexec(game.chunkloadfn, function()
     local chunkslot = a0
-    local chunkinfo_p = a0 * 44 + 0x800675B4
+    local chunkinfo_p = a0 * 44 + game.chunkinfos
     local chunk_p = readu32(chunkinfo_p)
     local chunk_type = readu16(chunk_p + 2)
     local chunk_id = readu32(chunk_p + 4)
@@ -240,8 +254,8 @@ trapexec(0x800125F8, function()
     end
     printf("CHUNK   LOAD @ slot %2d: chunk T%d; id %s", chunkslot, chunk_type, chunk_id)
 end)
-trapexec(0x80012A20, function()
-    local chunkslot = (a0 - 0x800675B4) // 44
+trapexec(game.chunkunloadfn, function()
+    local chunkslot = (a0 - game.chunkinfos) // 44
     local chunkinfo_p = a0
     local chunk_p = readu32(chunkinfo_p)
     local chunk_type = readu16(chunk_p + 2)

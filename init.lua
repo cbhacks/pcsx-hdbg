@@ -24,6 +24,9 @@ if not ok then
     os.exit(false)
 end
 
+-- Suspend here until the rest of the emulator is initialized.
+coroutine.yield()
+
 -- Display the program boot message.
 print '                                                                       '
 print ' PCSX-HDBG - PCSX-based hack debugger                                  '
@@ -215,9 +218,23 @@ function printf(...)
 end
 
 -- Run the user script.
-local ok, err = pcall(script)
+print "Starting user script..."
+local thread = coroutine.create(script)
+local ok, err = coroutine.resume(thread)
 if not ok then
     print("Error executing 'script.lua':")
     print(script)
     os.exit(false)
 end
+while coroutine.status(thread) ~= "dead" do
+    local ok, err = coroutine.resume(thread)
+    if not ok then
+        print("Error doing update in user script:")
+        print(script)
+        print()
+        print("User script updates have been terminated.")
+        return
+    end
+    coroutine.yield()
+end
+print "User script finished OK."

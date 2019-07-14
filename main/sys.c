@@ -88,6 +88,9 @@ void SysUpdate()
             break;
         }
     }
+
+    extern void update_lua(void);
+    update_lua();
 }
 
 void SysRunGui()

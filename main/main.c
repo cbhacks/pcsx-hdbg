@@ -33,6 +33,8 @@
 #include "../core/r3000a.h"
 
 lua_State *L;
+static lua_State *Lupdatethread;
+static int updatethread_ref;
 
 static void cleanup_lua(void)
 {
@@ -48,6 +50,24 @@ static _Noreturn void panic_lua(void)
         fprintf(stderr, "Error in internal lua scripts; no error message\n");
     }
     exit(EXIT_FAILURE);
+}
+
+void update_lua(void)
+{
+    if (!Lupdatethread)
+        return;
+
+    int err = lua_resume(Lupdatethread, NULL, 0);
+    if (err == LUA_YIELD) {
+        lua_settop(Lupdatethread, 0);
+    } else if (err == LUA_OK) {
+        lua_settop(Lupdatethread, 0);
+        Lupdatethread = NULL;
+        luaL_unref(L, LUA_REGISTRYINDEX, updatethread_ref);
+    } else {
+        lua_xmove(Lupdatethread, L, 1);
+        panic_lua();
+    }
 }
 
 #ifdef main
@@ -83,6 +103,11 @@ int main(int argc, char **argv)
     if (err != LUA_OK) {
         panic_lua();
     }
+
+    Lupdatethread = lua_newthread(L);
+    updatethread_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_xmove(L, Lupdatethread, 1);
+    update_lua();
 
     gui_init();
     atexit(gui_quit);
@@ -154,10 +179,7 @@ int main(int argc, char **argv)
     CheckCdrom();
     LoadCdrom();
 
-    err = lua_pcall(L, 0, 0, 0);
-    if (err != LUA_OK) {
-        panic_lua();
-    }
+    update_lua();
 
     psxCpu->Execute();
 }

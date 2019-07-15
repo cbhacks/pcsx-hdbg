@@ -16,6 +16,40 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+-- Set default configuration options.
+config = {
+    keymap = {
+        C     = "select",
+        V     = "start",
+        Up    = "up",
+        Right = "right",
+        Down  = "down",
+        Left  = "left",
+        E     = "l2",
+        T     = "r2",
+        W     = "l1",
+        R     = "r1",
+        D     = "triangle",
+        X     = "circle",
+        Z     = "x",
+        S     = "square"
+    }
+}
+
+-- Load and run the user's configuration script.
+local config_script, err = loadfile("config.lua", "t", config)
+if not config_script then
+    print("Error loading 'config.lua':")
+    print(err)
+    os.exit(false)
+end
+local ok, err = pcall(config_script)
+if not ok then
+    print("Error running 'config.lua':")
+    print(err)
+    os.exit(false)
+end
+
 -- Load and compile the user script.
 local script, err = loadfile("script.lua", "t")
 if not script then

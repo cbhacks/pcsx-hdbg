@@ -22,9 +22,32 @@
 #include <stdlib.h>
 
 #include <SDL.h>
+#include "lua.h"
+
+const char *pad_buttonnames[] = {
+    "select",
+    "l3",
+    "r3",
+    "start",
+    "up",
+    "right",
+    "down",
+    "left",
+    "l2",
+    "r2",
+    "l1",
+    "r1",
+    "triangle",
+    "circle",
+    "x",
+    "square",
+    NULL
+};
 
 static uint16_t pad_buttons = 0xFFFF;
 static uint16_t pad_bindings[SDL_NUM_SCANCODES];
+
+extern lua_State *L;
 
 void pad_init(void)
 {
@@ -32,20 +55,82 @@ void pad_init(void)
         pad_bindings[i] = -1;
     }
 
-    pad_bindings[SDL_SCANCODE_C]     = PAD_BUTTON_SELECT;
-    pad_bindings[SDL_SCANCODE_V]     = PAD_BUTTON_START;
-    pad_bindings[SDL_SCANCODE_UP]    = PAD_BUTTON_UP;
-    pad_bindings[SDL_SCANCODE_RIGHT] = PAD_BUTTON_RIGHT;
-    pad_bindings[SDL_SCANCODE_DOWN]  = PAD_BUTTON_DOWN;
-    pad_bindings[SDL_SCANCODE_LEFT]  = PAD_BUTTON_LEFT;
-    pad_bindings[SDL_SCANCODE_E]     = PAD_BUTTON_L2;
-    pad_bindings[SDL_SCANCODE_T]     = PAD_BUTTON_R2;
-    pad_bindings[SDL_SCANCODE_W]     = PAD_BUTTON_L1;
-    pad_bindings[SDL_SCANCODE_R]     = PAD_BUTTON_R1;
-    pad_bindings[SDL_SCANCODE_D]     = PAD_BUTTON_TRIANGLE;
-    pad_bindings[SDL_SCANCODE_X]     = PAD_BUTTON_CIRCLE;
-    pad_bindings[SDL_SCANCODE_Z]     = PAD_BUTTON_X;
-    pad_bindings[SDL_SCANCODE_S]     = PAD_BUTTON_SQUARE;
+    lua_getglobal(L, "config");
+    lua_getfield(L, -1, "keymap");
+    lua_remove(L, -2);
+    int t_type = lua_type(L, -1);
+    if (t_type != LUA_TTABLE) {
+        fprintf(
+            stderr,
+            "Error in config: Bad keymap (was %s, expected table)\n",
+            lua_typename(L, t_type)
+        );
+        exit(EXIT_FAILURE);
+    }
+
+    lua_pushnil(L);
+    while (lua_next(L, -2)) {
+        int k_type = lua_type(L, -2);
+        int v_type = lua_type(L, -1);
+        if (k_type != LUA_TSTRING) {
+            fprintf(
+                stderr,
+                "Error in config: Bad keymap key (was %s, expected string)\n",
+                lua_typename(L, k_type)
+            );
+            lua_pop(L, 1);
+            continue;
+        }
+        if (v_type != LUA_TSTRING) {
+            fprintf(
+                stderr,
+                "Error in config: Bad keymap value (was %s, expected string)\n",
+                lua_typename(L, v_type)
+            );
+            lua_pop(L, 1);
+            continue;
+        }
+        const char *k = lua_tostring(L, -2);
+        const char *v = lua_tostring(L, -1);
+
+        SDL_Keycode keycode = SDL_GetKeyFromName(k);
+        if (keycode == SDLK_UNKNOWN) {
+            fprintf(
+                stderr,
+                "Error in config: Unrecognized keymap key '%s'.\n",
+                k
+            );
+            lua_pop(L, 1);
+            continue;
+        }
+
+        SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
+        if (scancode == SDL_SCANCODE_UNKNOWN) {
+            fprintf(
+                stderr,
+                "Error in config: Keymap key '%s' has no matching scancode.\n",
+                k
+            );
+            lua_pop(L, 1);
+            continue;
+        }
+
+        int button = pad_lookupname(v);
+        if (button == -1) {
+            fprintf(
+                stderr,
+                "Error in config: Unrecognized keymap value '%s'.\n",
+                v
+            );
+            lua_pop(L, 1);
+            continue;
+        }
+
+        pad_bindings[scancode] = button;
+
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
 }
 
 void pad_quit(void)
@@ -70,4 +155,14 @@ void pad_handlekey(SDL_Scancode scancode, int down)
     } else {
         pad_buttons |= buttonmask;
     }
+}
+
+int pad_lookupname(const char *name)
+{
+    for (int i = 0; pad_buttonnames[i]; i++) {
+        if (strcmp(name, pad_buttonnames[i]) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }

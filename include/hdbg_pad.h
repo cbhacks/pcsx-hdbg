@@ -41,11 +41,15 @@ enum {
     PAD_BUTTON__COUNT
 };
 
+extern const char *pad_buttonnames[];
+
 void pad_init(void);
 void pad_quit(void);
 
 uint16_t pad_getbuttons(void);
 
 void pad_handlekey(SDL_Scancode scancode, int down);
+
+int pad_lookupname(const char *name);
 
 #endif

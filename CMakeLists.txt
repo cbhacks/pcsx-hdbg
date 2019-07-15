@@ -179,3 +179,9 @@ configure_file (
     "${CMAKE_CURRENT_BINARY_DIR}/script.lua"
     COPYONLY
 )
+
+configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.lua"
+    "${CMAKE_CURRENT_BINARY_DIR}/config.lua"
+    COPYONLY
+)

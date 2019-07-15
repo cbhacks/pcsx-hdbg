@@ -91,11 +91,19 @@ setmetatable(_ENV, META_ENV)
 
 -- Raise errors instead of yielding nil when accessing globals which do
 -- not exist or have not yet been initialized.
+local global_was_set = {}
+for k in pairs(_ENV) do
+    global_was_set[k] = true
+end
 META_ENV.__index = function(t, k)
-    error("no such global variable: " .. k)
+    if not global_was_set[k] then
+        error("no such global variable: " .. k)
+    end
+    return nil
 end
 META_ENV.__newindex = function(t, k, v)
     rawset(_ENV, k, v)
+    global_was_set[k] = true
 end
 
 register_name_by_index = {

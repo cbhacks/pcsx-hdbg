@@ -17,7 +17,7 @@
 #
 
 cmake_minimum_required (VERSION 3.7)
-project (PCSXHDBG)
+project (PCSXHDBG LANGUAGES C)
 
 find_package (ZLIB REQUIRED)
 find_package (SDL2 REQUIRED)

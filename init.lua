@@ -17,10 +17,10 @@
 --
 
 -- Load and compile the user script.
-local ok, script = pcall(loadfile, "script.lua", "t")
-if not ok then
+local script, err = loadfile("script.lua", "t")
+if not script then
     print("Error loading 'script.lua':")
-    print(script)
+    print(err)
     os.exit(false)
 end
 
@@ -223,14 +223,14 @@ local thread = coroutine.create(script)
 local ok, err = coroutine.resume(thread)
 if not ok then
     print("Error executing 'script.lua':")
-    print(script)
+    print(err)
     os.exit(false)
 end
 while coroutine.status(thread) ~= "dead" do
     local ok, err = coroutine.resume(thread)
     if not ok then
         print("Error doing update in user script:")
-        print(script)
+        print(err)
         print()
         print("User script updates have been terminated.")
         return

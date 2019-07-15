@@ -99,7 +99,9 @@ int main(int argc, char **argv)
 
     luaL_openlibs(L);
 
-    err = luaL_loadfile(L, "init.lua");
+    extern const char init_lua_data[];
+    extern const size_t init_lua_size;
+    err = luaL_loadbuffer(L, init_lua_data, init_lua_size, "init.lua");
     if (err != LUA_OK) {
         panic_lua();
     }

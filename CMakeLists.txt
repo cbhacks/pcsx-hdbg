@@ -147,6 +147,7 @@ add_executable (pcsx-hdbg
     main/mem.c
     main/pad.c
     main/trap.c
+    "${CMAKE_CURRENT_BINARY_DIR}/init.lua.c"
 )
 target_include_directories (pcsx-hdbg
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -169,12 +170,6 @@ add_dependencies (pcsx-hdbg
 )
 
 configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/init.lua"
-    "${CMAKE_CURRENT_BINARY_DIR}/init.lua"
-    COPYONLY
-)
-
-configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/script.lua"
     "${CMAKE_CURRENT_BINARY_DIR}/script.lua"
     COPYONLY
@@ -184,4 +179,17 @@ configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/config.lua"
     "${CMAKE_CURRENT_BINARY_DIR}/config.lua"
     COPYONLY
+)
+
+add_executable (bin2c tools/bin2c.c)
+
+add_custom_command (
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/init.lua.c"
+    COMMAND bin2c
+    ARGS
+        "${CMAKE_CURRENT_SOURCE_DIR}/init.lua"
+        "${CMAKE_CURRENT_BINARY_DIR}/init.lua.c"
+        init_lua
+    DEPENDS init.lua
+    VERBATIM
 )

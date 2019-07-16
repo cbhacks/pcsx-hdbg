@@ -43,6 +43,10 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
     find_package (SDL2 REQUIRED)
     find_package (OpenGL REQUIRED)
 
+    # Fix an SDL2 bug (error CMP0004).
+    # https://bugzilla.libsdl.org/show_bug.cgi?id=3295
+    string (STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
+
     add_library (pcsx-hdbg-core STATIC
         core/cdriso.c
         core/cdrom.c

@@ -1,0 +1,9 @@
+language: generic
+os: linux
+dist: xenial
+env:
+  - BUILD=linux
+  - BUILD=mingw ARCH=i686 DEPLOY=yes
+  - BUILD=mingw ARCH=x86_64
+script:
+  - tools/travis-script.sh

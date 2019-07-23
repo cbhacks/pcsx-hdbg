@@ -115,12 +115,14 @@ mkdir "${PKG_DIR}"
 
 (
     pkg() {
-        cp "$1" "${PKG_DIR}/$(basename "$1")"
+        cp -r "$1" "${PKG_DIR}/$(basename "$1")"
     }
 
     echo "Packaging software..."
+    pkg "${SOURCE_DIR}/README.md"
     pkg "${SOURCE_DIR}/COPYING"
     pkg "${SOURCE_DIR}/AUTHORS"
+    pkg "${SOURCE_DIR}/docs"
     pkg "${TARGET_BUILD_DIR}/pcsx-hdbg.exe"
     pkg "${TARGET_BUILD_DIR}/libpcsx-hdbg-spu.dll"
     pkg "${TARGET_BUILD_DIR}/libpcsx-hdbg-gpu.dll"

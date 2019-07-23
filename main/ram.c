@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "lua.h"
+
 #define RAM_ALIGNMASK  0xFFFFFF
 #define RAM_SIZE       0x220000
 
@@ -29,10 +31,15 @@ static unsigned char ram_alloc[RAM_ALIGNMASK + 1 + RAM_SIZE];
 
 void *ram_base;
 
+extern lua_State *L;
+
 void ram_init(void)
 {
     ram_base = (void *)(((uintptr_t)ram_alloc + RAM_ALIGNMASK) & ~RAM_ALIGNMASK);
     printf("Base RAM address: %p\n", ram_base);
+
+    lua_pushinteger(L, (uintptr_t)ram_base);
+    lua_setglobal(L, "ram_base");
 }
 
 void ram_quit(void)

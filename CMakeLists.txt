@@ -168,6 +168,7 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
         main/sys.c
         main/gui.c
         main/cpu.c
+        main/ram.c
         main/mem.c
         main/pad.c
         main/trap.c

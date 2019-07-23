@@ -34,6 +34,8 @@
 #include "r3000a.h"
 #include "psxhw.h"
 
+#include <hdbg_ram.h>
+
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS MAP_ANON
 #endif
@@ -73,7 +75,8 @@ int psxMemInit() {
 	memset(psxMemRLUT, 0, 0x10000 * sizeof(void *));
 	memset(psxMemWLUT, 0, 0x10000 * sizeof(void *));
 
-	psxM = calloc(0x00220000,1);
+	psxM = ram_base;
+	memset(ram_base, 0, 0x220000);
 
 	psxP = &psxM[0x200000];
 	psxH = &psxM[0x210000];
@@ -153,8 +156,6 @@ void psxMemReset() {
 }
 
 void psxMemShutdown() {
-	free(psxM);
-
 	free(psxR);
 	free(psxMemRLUT);
 	free(psxMemWLUT);

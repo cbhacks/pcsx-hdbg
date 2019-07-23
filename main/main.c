@@ -26,6 +26,7 @@
 
 #include <hdbg_gui.h>
 #include <hdbg_cpu.h>
+#include <hdbg_ram.h>
 #include <hdbg_mem.h>
 #include <hdbg_pad.h>
 #include <hdbg_trap.h>
@@ -116,6 +117,9 @@ int main(int argc, char **argv)
 
     cpu_init();
     atexit(cpu_quit);
+
+    ram_init();
+    atexit(ram_quit);
 
     mem_init();
     atexit(mem_quit);

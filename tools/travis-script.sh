@@ -41,7 +41,13 @@ case "${BUILD}" in
             cd build
             ../tools/mingw-cross-build.sh
         )
-        DEPLOYMENT_FILE="pcsx-hdbg-${TRAVIS_BUILD_NUMBER}-${TRAVIS_COMMIT}-${ARCH}.7z"
+        DEPLOYMENT_FILE=$( \
+            printf \
+            'pcsx-hdbg-n%04d-%s-%s.7z' \
+            "${TRAVIS_BUILD_NUMBER}" \
+            "${TRAVIS_COMMIT}" \
+            "${ARCH}" \
+        )
         mv build/pcsx-hdbg.7z "${DEPLOYMENT_FILE}"
         ;;
     *)

@@ -43,12 +43,12 @@ case "${BUILD}" in
         )
         DEPLOYMENT_FILE=$( \
             printf \
-            'pcsx-hdbg-n%04d-%s-%s.7z' \
+            'pcsx-hdbg-n%04d-%s-%s.zip' \
             "${TRAVIS_BUILD_NUMBER}" \
             "${TRAVIS_COMMIT}" \
             "${ARCH}" \
         )
-        mv build/pcsx-hdbg.7z "${DEPLOYMENT_FILE}"
+        mv build/pcsx-hdbg.zip "${DEPLOYMENT_FILE}"
         ;;
     *)
         echo 'Unrecognized $BUILD option: '"${BUILD}"

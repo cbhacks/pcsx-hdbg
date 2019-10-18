@@ -130,5 +130,5 @@ mkdir "${PKG_DIR}"
     pkg "${TARGET_BUILD_DIR}/config.lua"
     pkg "${PREFIX_DIR}/bin/SDL2.dll"
     rm -f "pcsx-hdbg.zip"
-    7z a "pcsx-hdbg.zip" "${PKG_DIR}/."
+    7z a "pcsx-hdbg.zip" "${PKG_DIR}/"'*'
 )

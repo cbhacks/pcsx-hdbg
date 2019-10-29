@@ -16,6 +16,10 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+function printf(...)
+    print(string.format(...))
+end
+
 -- Set default configuration options.
 config = {
     keymap = {
@@ -33,7 +37,8 @@ config = {
         X     = "circle",
         Z     = "x",
         S     = "square"
-    }
+    },
+    scriptfile = "script.lua"
 }
 
 -- Load and run the user's configuration script.
@@ -51,9 +56,9 @@ if not ok then
 end
 
 -- Load and compile the user script.
-local script, err = loadfile("script.lua", "t")
+local script, err = loadfile(config.scriptfile, "t")
 if not script then
-    print("Error loading 'script.lua':")
+    printf("Error loading '%s':", config.scriptfile)
     print(err)
     os.exit(false)
 end
@@ -255,16 +260,12 @@ do
     end
 end
 
-function printf(...)
-    print(string.format(...))
-end
-
 -- Run the user script.
 print "Starting user script..."
 local thread = coroutine.create(script)
 local ok, err = coroutine.resume(thread)
 if not ok then
-    print("Error executing 'script.lua':")
+    printf("Error executing '%s':", config.scriptfile)
     print(err)
     os.exit(false)
 end

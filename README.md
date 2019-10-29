@@ -77,3 +77,7 @@ executed.
 
 See `docs/scripting.md` for details on the available API's and changes
 from the default Lua environment.
+
+The script filename is configurable under the config key `scriptfile`.
+If set to nil (or explicitly unset), the script is read from standard
+input.

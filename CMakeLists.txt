@@ -200,12 +200,6 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
         COPYONLY
     )
 
-    configure_file (
-        "${CMAKE_CURRENT_SOURCE_DIR}/config.lua"
-        "${CMAKE_CURRENT_BINARY_DIR}/config.lua"
-        COPYONLY
-    )
-
     add_custom_command (
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/init.lua.c"
         COMMAND bin2c

@@ -127,7 +127,6 @@ mkdir "${PKG_DIR}"
     pkg "${TARGET_BUILD_DIR}/libpcsx-hdbg-spu.dll"
     pkg "${TARGET_BUILD_DIR}/libpcsx-hdbg-gpu.dll"
     pkg "${TARGET_BUILD_DIR}/script.lua"
-    pkg "${TARGET_BUILD_DIR}/config.lua"
     pkg "${PREFIX_DIR}/bin/SDL2.dll"
     rm -f "pcsx-hdbg.zip"
     7z a "pcsx-hdbg.zip" "${PKG_DIR}/"'*'

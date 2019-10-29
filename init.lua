@@ -42,17 +42,17 @@ config = {
 }
 
 -- Load and run the user's configuration script.
-local config_script, err = loadfile("config.lua", "t", config)
-if not config_script then
-    print("Error loading 'config.lua':")
-    print(err)
-    os.exit(false)
-end
-local ok, err = pcall(config_script)
-if not ok then
-    print("Error running 'config.lua':")
-    print(err)
-    os.exit(false)
+local config_script = loadfile("config.lua", "t", config)
+if config_script then
+    print("Using user-supplied 'config.lua'")
+    local ok, err = pcall(config_script)
+    if not ok then
+        print("Error running 'config.lua':")
+        print(err)
+        os.exit(false)
+    end
+else
+    print("Could not read 'config.lua'; using default config")
 end
 
 -- Parse command-line configuration options.

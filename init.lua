@@ -55,6 +55,57 @@ if not ok then
     os.exit(false)
 end
 
+-- Parse command-line configuration options.
+for i, v in pairs(argv) do
+    local delim = string.find(v, "=")
+    if not delim then
+        print("Improper argument: " .. v)
+        os.exit(false)
+    end
+
+    local opt_table = config
+    local opt_name = string.sub(v, 1, delim - 1)
+    local opt_value = string.sub(v, delim + 1)
+
+    if opt_name == "" then
+        print("Improper argument: " .. v)
+        os.exit(false)
+    end
+
+    while true do
+        local delim = string.find(opt_name, "%.")
+        if not delim then
+            break
+        end
+
+        local opt_head = string.sub(opt_name, 1, delim - 1)
+        opt_name = string.sub(opt_name, delim + 1)
+
+        if opt_head == "" then
+            print("Improper argument: " .. v)
+            os.exit(false)
+        end
+
+        if opt_name == "" then
+            print("Improper argument: " .. v)
+            os.exit(false)
+        end
+
+        if type(opt_table[opt_head]) ~= "table" then
+            opt_table[opt_head] = {}
+        end
+
+        opt_table = opt_table[opt_head]
+    end
+
+    if opt_value == "" then
+        opt_table[opt_name] = nil
+    else
+        opt_table[opt_name] = opt_value
+    end
+end
+argv = nil
+
 -- Load and compile the user script.
 local script, err = loadfile(config.scriptfile, "t")
 if not script then

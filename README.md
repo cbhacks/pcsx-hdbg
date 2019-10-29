@@ -81,3 +81,12 @@ from the default Lua environment.
 The script filename is configurable under the config key `scriptfile`.
 If set to nil (or explicitly unset), the script is read from standard
 input.
+
+
+## Configuration ##
+Configuration options may be set in `config.lua` or in command line
+arguments as key-value pairs. For example:
+
+```sh
+pcsx-hdbg keymap.Y=select keymap.U=start scriptfile=/path/to/other/file.lua
+```

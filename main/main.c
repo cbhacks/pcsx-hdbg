@@ -100,6 +100,13 @@ int main(int argc, char **argv)
 
     luaL_openlibs(L);
 
+    lua_newtable(L);
+    for (int i = 1; i < argc; i++) {
+        lua_pushstring(L, argv[i]);
+        lua_rawseti(L, -2, i);
+    }
+    lua_setglobal(L, "argv");
+
     extern const char init_lua_data[];
     extern const size_t init_lua_size;
     err = luaL_loadbuffer(L, init_lua_data, init_lua_size, "init.lua");

@@ -1,6 +1,6 @@
 --
 -- PCSX-HDBG - PCSX-based hack debugger
--- Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>
+-- Copyright (C) 2019-2020  "chekwob" <chek@wobbyworks.com>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -120,7 +120,7 @@ coroutine.yield()
 -- Display the program boot message.
 print '                                                                       '
 print ' PCSX-HDBG - PCSX-based hack debugger                                  '
-print ' Copyright (C) 2019  "chekwob" <chek@wobbyworks.com>                   '
+print ' Copyright (C) 2019-2020  "chekwob" <chek@wobbyworks.com>                   '
 print '                                                                       '
 print ' Based on PCSX-r, PCSX-df, PCSX, and the accompanying emulator GPU     '
 print ' and SPU plugins. These are very large projects with too many          '

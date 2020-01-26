@@ -35,6 +35,7 @@
 #include "mdec.h"
 #include "ppf.h"
 #include <stddef.h>
+#include <hdbg_gui.h>
 
 char CdromId[10] = "";
 char CdromLabel[33] = "";
@@ -845,7 +846,7 @@ int RecvPcsxInfo() {
 	NET_recvData(&Config.RCntFix, sizeof(Config.RCntFix), PSE_NET_BLOCKING);
 	NET_recvData(&Config.PsxType, sizeof(Config.PsxType), PSE_NET_BLOCKING);
 
-	SysUpdate();
+	gui_update();
 
 	tmp = Config.Cpu;
 	NET_recvData(&Config.Cpu, sizeof(Config.Cpu), PSE_NET_BLOCKING);

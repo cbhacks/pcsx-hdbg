@@ -93,8 +93,6 @@ void sys_quit(void)
 {
 }
 
-#include <hdbg_pad.h>
-
 #include "../core/system.h"
 #include "../core/plugins.h"
 #include "../core/psxcommon.h"
@@ -144,24 +142,6 @@ const char *SysLibError()
 void SysCloseLibrary(void *lib)
 {
     SDL_UnloadObject(lib);
-}
-
-void SysUpdate()
-{
-    SDL_Event ev;
-    while (SDL_PollEvent(&ev)) {
-        switch (ev.type) {
-        case SDL_QUIT:
-            exit(EXIT_SUCCESS);
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-            pad_handlekey(ev.key.keysym.scancode, ev.type == SDL_KEYDOWN);
-            break;
-        }
-    }
-
-    extern void update_lua(void);
-    update_lua();
 }
 
 void SysRunGui()

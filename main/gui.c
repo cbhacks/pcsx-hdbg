@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <hdbg_pad.h>
+
 #include <SDL.h>
 
 SDL_Window *gui_window;
@@ -53,6 +55,24 @@ void gui_quit(void)
 {
     SDL_GL_DeleteContext(gui_glctx);
     SDL_DestroyWindow(gui_window);
+}
+
+void gui_update(void)
+{
+    SDL_Event ev;
+    while (SDL_PollEvent(&ev)) {
+        switch (ev.type) {
+        case SDL_QUIT:
+            exit(EXIT_SUCCESS);
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            pad_handlekey(ev.key.keysym.scancode, ev.type == SDL_KEYDOWN);
+            break;
+        }
+    }
+
+    extern void update_lua(void);
+    update_lua();
 }
 
 void gui_finishframe(void)

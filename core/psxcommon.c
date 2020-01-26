@@ -33,6 +33,8 @@
 #include "cheat.h"
 #include "ppf.h"
 
+#include <hdbg_gui.h>
+
 PcsxConfig Config;
 boolean NetOpened = FALSE;
 
@@ -69,7 +71,7 @@ void EmuShutdown() {
 void EmuUpdate() {
 	// Do not allow hotkeys inside a softcall from HLE BIOS
 	if (!Config.HLE || !hleSoftCall)
-		SysUpdate();
+		gui_update();
 
 	ApplyCheats();
 

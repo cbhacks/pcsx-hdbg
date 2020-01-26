@@ -27,6 +27,8 @@ extern SDL_GLContext gui_glctx;
 void gui_init(void);
 void gui_quit(void);
 
+void gui_update(void);
+
 void gui_finishframe(void);
 
 #endif

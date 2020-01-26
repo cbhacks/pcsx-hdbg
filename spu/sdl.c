@@ -34,7 +34,7 @@
 
 short			*pSndBuffer = NULL;
 int				iBufSize = 0;
-volatile int	iReadPos = 0, iWritePos = 0;
+int	iReadPos = 0, iWritePos = 0;
 
 static void SOUND_FillAudio(void *unused, Uint8 *stream, int len) {
 	short *p = (short *)stream;
@@ -98,7 +98,9 @@ unsigned long SoundGetBytesBuffered(void) {
 
 	if (pSndBuffer == NULL) return SOUNDSIZE;
 
+        SDL_LockAudio();
 	size = iReadPos - iWritePos;
+        SDL_UnlockAudio();
 	if (size <= 0) size += iBufSize;
 
 	if (size < iBufSize / 2) return SOUNDSIZE;
@@ -111,6 +113,7 @@ void SoundFeedStreamData(unsigned char *pSound, long lBytes) {
 
 	if (pSndBuffer == NULL) return;
 
+        SDL_LockAudio();
 	while (lBytes > 0) {
 		if (((iWritePos + 1) % iBufSize) == iReadPos) break;
 
@@ -121,4 +124,5 @@ void SoundFeedStreamData(unsigned char *pSound, long lBytes) {
 
 		lBytes -= sizeof(short);
 	}
+        SDL_UnlockAudio();
 }

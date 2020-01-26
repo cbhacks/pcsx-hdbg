@@ -76,6 +76,9 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
         PUBLIC "${ZLIB_INCLUDE_DIR}"
         PUBLIC "${SDL2_INCLUDE_DIRS}"
     )
+    target_compile_options (pcsx-hdbg-core
+        PRIVATE "-Wno-unused-result"
+    )
     target_link_libraries (pcsx-hdbg-core
         PRIVATE "${ZLIB_LIBRARIES}"
     )

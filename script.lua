@@ -17,8 +17,9 @@ end
 
 print "Hello, world!"
 
--- Example: Change starting level of NTSC-U Crash 2 to Ruination
-write8(0x800117E4, 0xF)
+if config.bootlevel then
+    write8(0x800117E4, config.bootlevel)
+end
 
 -- Example: Make GOOL RNG always return the lower-bound input
 local rng_lastpc

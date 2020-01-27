@@ -15,31 +15,9 @@ function eidtoname(value)
     return char1 .. char2 .. char3 .. char4 .. char5
 end
 
-print "Hello, world!"
-
 if config.bootlevel then
     write8(0x800117E4, config.bootlevel)
 end
-
--- Example: Make GOOL RNG always return the lower-bound input
-local rng_lastpc
-local rng_counter
-trapexec(0x8003A3B4, function()
-    if rng_lastpc ~= s5 then
-        rng_lastpc = s5
-        rng_counter = 0
-    end
-    rng_counter = rng_counter + 1
-
-    if rng_counter <= 20 then
-        v1 = 0
-    else
-        -- In case of infinite loop on RNG instructions (spitting plants,
-        -- Diggin' It statues, Tiny boss fight, etc), start returning increasing
-        -- RNG values until the next different-PC RNG instruction.
-        v1 = rng_counter - 20
-    end
-end)
 
 local c2_scus = {
     chunkinfos = 0x800675B4,
@@ -82,7 +60,4 @@ trapexec(game.chunkunloadfn, function()
         chunk_id = eidtoname(chunk_id)
     end
     printf("CHUNK UNLOAD @ slot %2d: chunk T%d; id %s", chunkslot, chunk_type, chunk_id)
-end)
-trapexec(0x800126F4, function()
-    --print("LOADING ENTRY: " .. eidtoname(v0))
 end)

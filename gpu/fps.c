@@ -386,6 +386,8 @@ void ReInitFrameCap(void)
 
 void CheckFrameRate(void)                              // called in updatelace (on every emulated psx vsync)
 {
+extern BOOL bHasDrawn;
+if (!bHasDrawn) return;
  if(bUseFrameSkip) 
   {
    if(!(dwActFixes&0x100))

@@ -151,6 +151,8 @@ int             iRumbleTime   = 0;
 uint32_t        vBlank=0;
 BOOL			oddLines;
 
+BOOL bHasDrawn = FALSE;
+
 ////////////////////////////////////////////////////////////////////////
 // stuff to make this a true PDK module
 ////////////////////////////////////////////////////////////////////////
@@ -2320,6 +2322,9 @@ ENDVRAM:
      if(gpuDataC == 0)
       {
        command = (unsigned char)((gdata>>24) & 0xff);
+        if (command != 0xA0 && command != 0x0 && command != 0x1 && command != 0x2 && (command & 0xF0) != 0xE0) {
+            bHasDrawn = TRUE;
+        }
  
        if(primTableCX[command])
         {

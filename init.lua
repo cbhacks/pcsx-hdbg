@@ -39,6 +39,7 @@ config = {
         S     = "square"
     },
     scriptfile = "script.lua",
+    gamefile = "game.bin",
     region = "ntsc"
 }
 

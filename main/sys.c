@@ -30,9 +30,24 @@ extern lua_State *L;
 void sys_init(void)
 {
     lua_getglobal(L, "config");
-    lua_getfield(L, -1, "region");
-    lua_remove(L, -2);
+
+    lua_getfield(L, -1, "gamefile");
     int t_type = lua_type(L, -1);
+    if (t_type != LUA_TSTRING) {
+        fprintf(
+            stderr,
+            "Error in config: Bad gamefile (was %s, expected string)\n",
+            lua_typename(L, t_type)
+        );
+        exit(EXIT_FAILURE);
+    }
+
+    const char *str = lua_tolstring(L, -1, NULL);
+    SetIsoFile(str);
+    lua_pop(L, 1);
+
+    lua_getfield(L, -1, "region");
+    t_type = lua_type(L, -1);
     if (t_type != LUA_TSTRING) {
         fprintf(
             stderr,
@@ -42,7 +57,7 @@ void sys_init(void)
         exit(EXIT_FAILURE);
     }
 
-    const char *str = lua_tolstring(L, -1, NULL);
+    str = lua_tolstring(L, -1, NULL);
     if (strcasecmp(str, "ntsc") == 0) {
         printf("Selected region: NTSC\n");
         Config.PsxType = PSX_TYPE_NTSC;
@@ -69,6 +84,8 @@ void sys_init(void)
         lua_pushboolean(L, 0);
         lua_setglobal(L, "pal");
     }
+    lua_pop(L, 1);
+
     lua_pop(L, 1);
 }
 

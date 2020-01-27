@@ -159,8 +159,6 @@ int main(int argc, char **argv)
     }
     atexit(EmuShutdown);
 
-    SetIsoFile("game.bin");
-
     err = LoadPlugins();
     if (err == -1) {
         fprintf(stderr, "Failed to load plugins.\n");

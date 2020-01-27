@@ -95,4 +95,5 @@ Other options available:
 
 | Option | Values  | Default |
 |--------|---------|---------|
+|gamefile|         |game.bin |
 |region  |ntsc, pal|ntsc     |

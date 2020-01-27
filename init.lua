@@ -38,7 +38,8 @@ config = {
         Z     = "x",
         S     = "square"
     },
-    scriptfile = "script.lua"
+    scriptfile = "script.lua",
+    region = "ntsc"
 }
 
 -- Load and run the user's configuration script.

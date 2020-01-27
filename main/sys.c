@@ -21,6 +21,48 @@
 #include <stdarg.h>
 
 #include <SDL.h>
+#include "lua.h"
+
+#include "../core/r3000a.h"
+
+extern lua_State *L;
+
+void sys_init(void)
+{
+    lua_getglobal(L, "config");
+    lua_getfield(L, -1, "region");
+    lua_remove(L, -2);
+    int t_type = lua_type(L, -1);
+    if (t_type != LUA_TSTRING) {
+        fprintf(
+            stderr,
+            "Error in config: Bad region (was %s, expected string)\n",
+            lua_typename(L, t_type)
+        );
+        exit(EXIT_FAILURE);
+    }
+
+    const char *str = lua_tolstring(L, -1, NULL);
+    if (strcasecmp(str, "ntsc") == 0) {
+        printf("Selected region: NTSC\n");
+        Config.PsxType = PSX_TYPE_NTSC;
+    } else if (strcasecmp(str, "pal") == 0) {
+        printf("Selected region: PAL\n");
+        Config.PsxType = PSX_TYPE_PAL;
+    } else {
+        fprintf(
+            stderr,
+            "Unrecognized region '%s'; defaulting to NTSC\n",
+            str
+        );
+        Config.PsxType = PSX_TYPE_NTSC;
+    }
+    lua_pop(L, 1);
+}
+
+void sys_quit(void)
+{
+}
 
 #include <hdbg_pad.h>
 

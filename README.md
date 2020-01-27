@@ -90,3 +90,9 @@ arguments as key-value pairs. For example:
 ```sh
 pcsx-hdbg keymap.Y=select keymap.U=start scriptfile=/path/to/other/file.lua
 ```
+
+Other options available:
+
+| Option | Values  | Default |
+|--------|---------|---------|
+|region  |ntsc, pal|ntsc     |

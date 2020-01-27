@@ -24,6 +24,7 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+#include <hdbg_sys.h>
 #include <hdbg_gui.h>
 #include <hdbg_cpu.h>
 #include <hdbg_ram.h>
@@ -118,6 +119,9 @@ int main(int argc, char **argv)
     updatethread_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_xmove(L, Lupdatethread, 1);
     update_lua();
+
+    sys_init();
+    atexit(sys_quit);
 
     gui_init();
     atexit(gui_quit);

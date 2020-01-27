@@ -52,7 +52,12 @@ local c2_sces = {
     chunkunloadfn = 0x80012AE4
 }
 
-local game = c2_scus
+local game
+if ntsc then
+    game = c2_scus
+else
+    game = c2_sces
+end
 
 -- Example: Print chunk load/unload messages
 trapexec(game.chunkloadfn, function()

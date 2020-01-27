@@ -196,6 +196,16 @@ preserve these may inhibit or disable some functionality, such as
 register access by global.
 
 
+* `ntsc` and `pal`
+
+These are global variables set at startup. If the game region is NTSC
+(U/C or J), then `ntsc` is `true` and `pal` is `false`. If the game
+region is PAL, then `ntsc` is false and `pal` is `true`.
+
+Changing the value of these variables has no effect on the region used
+by the emulator.
+
+
 ## Continual Updating ##
 Rather than returning, the script may yield (`coroutine.yield()`). In
 this case, rather than exiting, the script continues to live suspended

@@ -46,9 +46,17 @@ void sys_init(void)
     if (strcasecmp(str, "ntsc") == 0) {
         printf("Selected region: NTSC\n");
         Config.PsxType = PSX_TYPE_NTSC;
+        lua_pushboolean(L, 1);
+        lua_setglobal(L, "ntsc");
+        lua_pushboolean(L, 0);
+        lua_setglobal(L, "pal");
     } else if (strcasecmp(str, "pal") == 0) {
         printf("Selected region: PAL\n");
         Config.PsxType = PSX_TYPE_PAL;
+        lua_pushboolean(L, 0);
+        lua_setglobal(L, "ntsc");
+        lua_pushboolean(L, 1);
+        lua_setglobal(L, "pal");
     } else {
         fprintf(
             stderr,
@@ -56,6 +64,10 @@ void sys_init(void)
             str
         );
         Config.PsxType = PSX_TYPE_NTSC;
+        lua_pushboolean(L, 1);
+        lua_setglobal(L, "ntsc");
+        lua_pushboolean(L, 0);
+        lua_setglobal(L, "pal");
     }
     lua_pop(L, 1);
 }

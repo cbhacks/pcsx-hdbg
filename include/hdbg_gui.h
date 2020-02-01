@@ -23,9 +23,14 @@
 
 extern SDL_Window *gui_window;
 extern SDL_GLContext gui_glctx;
+extern SDL_GLContext gui_gpuglctx;
 
 void gui_init(void);
 void gui_quit(void);
+
+extern _Bool gui_isopen;
+
+void gui_setopen(_Bool open);
 
 void gui_update(void);
 

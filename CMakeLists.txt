@@ -182,6 +182,7 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lua/src"
         PRIVATE "${SDL2_INCLUDE_DIRS}"
         PRIVATE "${ZLIB_INCLUDE_DIR}"
+        PRIVATE "${OPENGL_INCLUDE_DIRS}"
     )
     target_compile_options (pcsx-hdbg
         PRIVATE "-Wall"
@@ -191,6 +192,7 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
         PRIVATE pcsx-hdbg-core
         PRIVATE lua
         PRIVATE "${SDL2_LIBRARIES}"
+        PRIVATE "${OPENGL_LIBRARIES}"
     )
     add_dependencies (pcsx-hdbg
         pcsx-hdbg-gpu

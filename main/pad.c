@@ -157,6 +157,11 @@ void pad_handlekey(SDL_Scancode scancode, int down)
     }
 }
 
+void pad_clearkeys(void)
+{
+    pad_buttons = 0xFFFF;
+}
+
 int pad_lookupname(const char *name)
 {
     for (int i = 0; pad_buttonnames[i]; i++) {

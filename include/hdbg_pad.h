@@ -50,6 +50,8 @@ uint16_t pad_getbuttons(void);
 
 void pad_handlekey(SDL_Scancode scancode, int down);
 
+void pad_clearkeys(void);
+
 int pad_lookupname(const char *name);
 
 #endif

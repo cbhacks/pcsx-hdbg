@@ -24,9 +24,14 @@
 #include <hdbg_pad.h>
 
 #include <SDL.h>
+#include <GL/gl.h>
 
 SDL_Window *gui_window;
 SDL_GLContext gui_glctx;
+SDL_GLContext gui_gpuglctx;
+
+#define GUI_WIDTH 640
+#define GUI_HEIGHT 480
 
 void gui_init(void)
 {
@@ -34,8 +39,8 @@ void gui_init(void)
         "PCSX-HDBG",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        640,
-        480,
+        GUI_WIDTH,
+        GUI_HEIGHT,
         SDL_WINDOW_OPENGL
     );
     if (!gui_window) {
@@ -49,12 +54,41 @@ void gui_init(void)
         SDL_DestroyWindow(gui_window);
         exit(EXIT_FAILURE);
     }
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glMatrixMode(GL_PROJECTION);
+    glOrtho(0.0f, GUI_WIDTH, GUI_HEIGHT, 0.0f, -1.0f, 1.0f);
+    glMatrixMode(GL_MODELVIEW);
+
+    gui_gpuglctx = SDL_GL_CreateContext(gui_window);
+    if (!gui_gpuglctx) {
+        fprintf(stderr, "SDL_GL_CreateContext failed: %s\n", SDL_GetError());
+        SDL_GL_DeleteContext(gui_glctx);
+        SDL_DestroyWindow(gui_window);
+        exit(EXIT_FAILURE);
+    }
 }
 
 void gui_quit(void)
 {
+    SDL_GL_DeleteContext(gui_gpuglctx);
     SDL_GL_DeleteContext(gui_glctx);
     SDL_DestroyWindow(gui_window);
+}
+
+_Bool gui_isopen = 0;
+
+void gui_setopen(_Bool open)
+{
+    if (gui_isopen == open)
+        return;
+
+    if (open) {
+        pad_clearkeys();
+    }
+
+    gui_isopen = open;
 }
 
 void gui_update(void)
@@ -62,11 +96,25 @@ void gui_update(void)
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
+
         case SDL_QUIT:
             exit(EXIT_SUCCESS);
+
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            pad_handlekey(ev.key.keysym.scancode, ev.type == SDL_KEYDOWN);
+            // Toggle GUI open status when pressing escape.
+            if (ev.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                if (ev.type == SDL_KEYDOWN) {
+                    gui_setopen(!gui_isopen);
+                }
+                break;
+            }
+
+            if (gui_isopen) {
+                // TODO
+            } else {
+                pad_handlekey(ev.key.keysym.scancode, ev.type == SDL_KEYDOWN);
+            }
             break;
         }
     }
@@ -75,7 +123,42 @@ void gui_update(void)
     update_lua();
 }
 
+static void gui_draw(void)
+{
+    // TODO
+}
+
+static void gui_drawbackdrop(void)
+{
+    glPushAttrib(GL_CURRENT_BIT);
+    glEnable(GL_BLEND);
+
+    glBegin(GL_QUADS);
+    glColor4f(0.0f, 0.0f, 0.0f, 0.2f);
+    glVertex2f(0.0f,      0.0f);
+    glVertex2f(GUI_WIDTH, 0.0f);
+    glColor4f(0.5f, 0.5f, 0.0f, 0.5f);
+    glVertex2f(GUI_WIDTH, GUI_HEIGHT);
+    glColor4f(0.0f, 0.5f, 0.5f, 0.5f);
+    glVertex2f(0.0f,      GUI_HEIGHT);
+    glEnd();
+
+    glDisable(GL_BLEND);
+    glPopAttrib();
+}
+
 void gui_finishframe(void)
 {
+    if (gui_isopen) {
+        glFinish();
+        SDL_GL_MakeCurrent(gui_window, gui_glctx);
+
+        gui_drawbackdrop();
+        gui_draw();
+
+        glFinish();
+        SDL_GL_MakeCurrent(gui_window, gui_gpuglctx);
+    }
+
     SDL_GL_SwapWindow(gui_window);
 }

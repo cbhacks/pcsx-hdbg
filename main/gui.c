@@ -33,6 +33,7 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_SIZE_TYPE size_t
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"

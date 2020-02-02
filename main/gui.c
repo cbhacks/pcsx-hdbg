@@ -25,6 +25,8 @@
 
 #include <SDL.h>
 #include <GL/gl.h>
+#include "lua.h"
+#include "lauxlib.h"
 
 #define NK_IMPLEMENTATION
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
@@ -44,8 +46,94 @@ struct nk_context gui_nkctx;
 
 #define GUI_FONT_SIZE 16.0f
 
+struct tool {
+    char name[20];
+    int func;
+    struct tool *next;
+};
+
+static int slots = -1;
+
+static int toolchain_len;
+static struct tool *toolchain;
+static struct tool *active_tool;
+
+static int scr_guitool(lua_State *L)
+{
+    const char *name = luaL_checkstring(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+
+    lua_pushvalue(L, 2);
+    int func = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    struct tool *new_tool = malloc(sizeof(struct tool));
+    if (!new_tool) {
+        return luaL_error(L, "failed to allocate memory for tool");
+    }
+
+    strncpy(new_tool->name, name, sizeof(new_tool->name));
+    new_tool->name[sizeof(new_tool->name) - 1] = '\0';
+    new_tool->func = func;
+    new_tool->next = NULL;
+
+    struct tool **tailptr = &toolchain;
+    while (*tailptr)
+        tailptr = &(*tailptr)->next;
+
+    *tailptr = new_tool;
+    toolchain_len++;
+    return 0;
+}
+
+static int scr_gui_row(lua_State *L)
+{
+    int columns = luaL_checkinteger(L, 1);
+
+    if (slots == -1) {
+        return luaL_error(L, "gui function called outside gui code");
+    }
+
+    nk_layout_row_dynamic(&gui_nkctx, GUI_FONT_SIZE, columns);
+    slots = columns;
+
+    return 0;
+}
+
+static int scr_gui_label(lua_State *L)
+{
+    const char *str = luaL_checkstring(L, 1);
+
+    if (slots == -1) {
+        return luaL_error(L, "gui function called outside gui code");
+    } else if (slots == 0) {
+        nk_layout_row_dynamic(&gui_nkctx, GUI_FONT_SIZE, 1);
+        slots = 1;
+    }
+
+    nk_label(&gui_nkctx, str, NK_TEXT_LEFT);
+    slots--;
+
+    return 0;
+}
+
+extern lua_State *L;
+
+#define DEFINE_LUA_FUNCTION(name) \
+    lua_pushcfunction(L, scr_##name); \
+    lua_setglobal(L, #name);
+
+#define DEFINE_LUA_LOCAL_FUNCTION(prefix, name) \
+    lua_pushcfunction(L, scr_##prefix##_##name); \
+    lua_setfield(L, -2, #name);
+
 void gui_init(void)
 {
+    DEFINE_LUA_FUNCTION(guitool);
+    lua_newtable(L);
+    DEFINE_LUA_LOCAL_FUNCTION(gui, row);
+    DEFINE_LUA_LOCAL_FUNCTION(gui, label);
+    lua_setglobal(L, "gui");
+
     gui_window = SDL_CreateWindow(
         "PCSX-HDBG",
         SDL_WINDOWPOS_CENTERED,
@@ -175,8 +263,46 @@ static void gui_draw(void)
         GUI_HEIGHT - 2 * window_spacing
     };
     if (nk_begin(&gui_nkctx, "PCSX-HDBG (" __DATE__ ")", window_rect, NK_WINDOW_TITLE)) {
-        nk_layout_row_dynamic(&gui_nkctx, 30, 1);
-        nk_label(&gui_nkctx, "Sample Text", NK_TEXT_LEFT);
+        nk_layout_row_dynamic(&gui_nkctx, GUI_FONT_SIZE + 4.0f, toolchain_len);
+
+        for (struct tool *tool = toolchain; tool; tool = tool->next) {
+            if (tool == active_tool) {
+                nk_label(&gui_nkctx, tool->name, NK_TEXT_CENTERED);
+            } else {
+                if (nk_button_label(&gui_nkctx, tool->name)) {
+                    active_tool = tool;
+                }
+            }
+        }
+
+        nk_layout_row_dynamic(&gui_nkctx, 4, 0);
+
+        if (active_tool) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, active_tool->func);
+            slots = 0;
+            int err = lua_pcall(L, 0, 0, 0);
+            slots = -1;
+            if (err != LUA_OK) {
+                const char *msg = lua_tostring(L, -1);
+                if (msg) {
+                    fprintf(
+                        stderr,
+                        "Error executing tool %p: %s\n",
+                        (void *)active_tool,
+                        msg
+                    );
+                } else {
+                    fprintf(
+                        stderr,
+                        "Error executing tool %p; no error message\n",
+                        (void *)active_tool
+                    );
+                }
+            }
+        } else {
+            nk_layout_row_dynamic(&gui_nkctx, GUI_FONT_SIZE, 1);
+            nk_label(&gui_nkctx, "No tool selected.", NK_TEXT_LEFT);
+        }
     }
     nk_end(&gui_nkctx);
 

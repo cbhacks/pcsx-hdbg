@@ -61,3 +61,17 @@ trapexec(game.chunkunloadfn, function()
     end
     printf("CHUNK UNLOAD @ slot %2d: chunk T%d; id %s", chunkslot, chunk_type, chunk_id)
 end)
+
+guitool("Chunks", function()
+    for i = 0, 22 do
+        local chunkinfo_p = game.chunkinfos + i * 44
+        local chunk_p = readu32(chunkinfo_p)
+        local chunk_type = readu16(chunk_p + 2)
+        local chunk_id = readu32(chunk_p + 4)
+        if chunk_type == 1 then
+            chunk_id = eidtoname(chunk_id)
+        end
+
+        gui.label(string.format("slot %2d: chunk T%d; id %s", i, chunk_type, chunk_id))
+    end
+end)

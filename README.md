@@ -13,6 +13,7 @@ Some other software may be included with source and binary distributions
 of this software:
 
  * Lua 5.3
+ * Nuklear
  * SDL 2.0 _(Windows binary releases only)_
  * zlib _(Windows binary releases only)_
 

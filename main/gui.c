@@ -26,9 +26,21 @@
 #include <SDL.h>
 #include <GL/gl.h>
 
+#define NK_IMPLEMENTATION
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#include "nuklear.h"
+#pragma GCC diagnostic pop
+
 SDL_Window *gui_window;
 SDL_GLContext gui_glctx;
 SDL_GLContext gui_gpuglctx;
+struct nk_context gui_nkctx;
 
 #define GUI_WIDTH 640
 #define GUI_HEIGHT 480
@@ -60,6 +72,37 @@ void gui_init(void)
     glMatrixMode(GL_PROJECTION);
     glOrtho(0.0f, GUI_WIDTH, GUI_HEIGHT, 0.0f, -1.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
+
+    static struct nk_font *font;
+    static struct nk_font_atlas font_atlas;
+    int font_width;
+    int font_height;
+    const void *font_pixels;
+    nk_font_atlas_init_default(&font_atlas);
+    nk_font_atlas_begin(&font_atlas);
+    font = nk_font_atlas_add_default(&font_atlas, 16.0f, NULL);
+    font_pixels = nk_font_atlas_bake(
+        &font_atlas,
+        &font_width,
+        &font_height,
+        NK_FONT_ATLAS_RGBA32
+    );
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        font_width,
+        font_height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        font_pixels
+    );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    nk_font_atlas_end(&font_atlas, nk_handle_id(0xDEAD), 0);
+
+    nk_init_default(&gui_nkctx, &font->handle);
 
     gui_gpuglctx = SDL_GL_CreateContext(gui_window);
     if (!gui_gpuglctx) {
@@ -125,7 +168,91 @@ void gui_update(void)
 
 static void gui_draw(void)
 {
-    // TODO
+    const float window_spacing = 20.0f;
+    const struct nk_rect window_rect = {
+        window_spacing,
+        window_spacing,
+        GUI_WIDTH - 2 * window_spacing,
+        GUI_HEIGHT - 2 * window_spacing
+    };
+    if (nk_begin(&gui_nkctx, "PCSX-HDBG (" __DATE__ ")", window_rect, NK_WINDOW_TITLE)) {
+        nk_layout_row_dynamic(&gui_nkctx, 30, 1);
+        nk_label(&gui_nkctx, "Sample Text", NK_TEXT_LEFT);
+    }
+    nk_end(&gui_nkctx);
+
+    glPushAttrib(GL_CURRENT_BIT | GL_SCISSOR_BIT);
+    glEnable(GL_BLEND);
+    glEnable(GL_SCISSOR_TEST);
+
+    struct vtx {
+        float pos[2];
+        float uvs[2];
+        unsigned char col[4];
+    };
+
+    struct nk_draw_vertex_layout_element layout[] = {
+        { NK_VERTEX_POSITION, NK_FORMAT_FLOAT, offsetof(struct vtx, pos) },
+        { NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, offsetof(struct vtx, uvs) },
+        { NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, offsetof(struct vtx, col) },
+        { NK_VERTEX_LAYOUT_END }
+    };
+
+    struct nk_convert_config cfg = {};
+    cfg.vertex_layout = layout;
+    cfg.vertex_size = sizeof(struct vtx);
+    cfg.vertex_alignment = _Alignof(struct vtx);
+    cfg.global_alpha = 0.8f;
+
+    struct nk_buffer cmds;
+    struct nk_buffer vbuf;
+    struct nk_buffer ebuf;
+    nk_buffer_init_default(&cmds);
+    nk_buffer_init_default(&vbuf);
+    nk_buffer_init_default(&ebuf);
+
+    nk_convert(&gui_nkctx, &cmds, &vbuf, &ebuf, &cfg);
+
+    const nk_byte *vertices = nk_buffer_memory_const(&vbuf);
+    const nk_ushort *elements = nk_buffer_memory_const(&ebuf);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    glVertexPointer(2, GL_FLOAT, sizeof(struct vtx), vertices + offsetof(struct vtx, pos));
+    glTexCoordPointer(2, GL_FLOAT, sizeof(struct vtx), vertices + offsetof(struct vtx, uvs));
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(struct vtx), vertices + offsetof(struct vtx, col));
+
+    const struct nk_draw_command *cmd;
+    nk_draw_foreach(cmd, &gui_nkctx, &cmds) {
+        if (!cmd->elem_count)
+            continue;
+
+        // TODO - scissor
+
+        if (cmd->texture.id == 0xDEAD)
+            glEnable(GL_TEXTURE_2D);
+
+        glDrawElements(GL_TRIANGLES, cmd->elem_count, GL_UNSIGNED_SHORT, elements);
+        elements += cmd->elem_count;
+
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+
+    nk_buffer_free(&cmds);
+    nk_buffer_free(&vbuf);
+    nk_buffer_free(&ebuf);
+
+    glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    glPopAttrib();
+
+    nk_clear(&gui_nkctx);
 }
 
 static void gui_drawbackdrop(void)

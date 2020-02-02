@@ -38,6 +38,7 @@
 #include "stdafx.h"
 #include "externals.h"
 #include "cfg.h"
+#include <hdbg_gui.h>
 
 char *pConfigFile = NULL;
 
@@ -221,8 +222,8 @@ void ReadConfigFile()
 
 void ReadConfig(void)                                  // read config (linux file)
 {
- iResX=640;
- iResY=480;
+ iResX=GUI_WIDTH;
+ iResY=GUI_HEIGHT;
  iColDepth=16;
  bChangeRes=FALSE;
  bWindowMode=TRUE;

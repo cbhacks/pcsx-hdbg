@@ -42,9 +42,6 @@ SDL_GLContext gui_glctx;
 SDL_GLContext gui_gpuglctx;
 struct nk_context gui_nkctx;
 
-#define GUI_WIDTH 640
-#define GUI_HEIGHT 480
-
 void gui_init(void)
 {
     gui_window = SDL_CreateWindow(

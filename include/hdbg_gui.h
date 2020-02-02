@@ -21,6 +21,9 @@
 
 #include <SDL.h>
 
+#define GUI_WIDTH 640
+#define GUI_HEIGHT 480
+
 extern SDL_Window *gui_window;
 extern SDL_GLContext gui_glctx;
 extern SDL_GLContext gui_gpuglctx;

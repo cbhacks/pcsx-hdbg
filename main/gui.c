@@ -223,6 +223,7 @@ void gui_setopen(_Bool open)
 
 void gui_update(void)
 {
+    nk_input_begin(&gui_nkctx);
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
@@ -246,8 +247,42 @@ void gui_update(void)
                 pad_handlekey(ev.key.keysym.scancode, ev.type == SDL_KEYDOWN);
             }
             break;
+
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            if (gui_isopen) {
+                int button =
+                    (ev.button.button == SDL_BUTTON_LEFT)   ? NK_BUTTON_LEFT   :
+                    (ev.button.button == SDL_BUTTON_RIGHT)  ? NK_BUTTON_RIGHT  :
+                    (ev.button.button == SDL_BUTTON_MIDDLE) ? NK_BUTTON_MIDDLE :
+                    -1;
+                if (button != -1) {
+                    nk_input_button(
+                        &gui_nkctx,
+                        button,
+                        ev.button.x,
+                        ev.button.y,
+                        ev.type == SDL_MOUSEBUTTONDOWN
+                    );
+                }
+            }
+            break;
+
+        case SDL_MOUSEMOTION:
+            if (gui_isopen) {
+                nk_input_motion(&gui_nkctx, ev.motion.x, ev.motion.y);
+            }
+            break;
+
+        case SDL_MOUSEWHEEL:
+            if (gui_isopen) {
+                nk_input_scroll(&gui_nkctx, nk_vec2(ev.wheel.x, ev.wheel.y));
+            }
+            break;
+
         }
     }
+    nk_input_end(&gui_nkctx);
 
     extern void update_lua(void);
     update_lua();

@@ -42,6 +42,8 @@ SDL_GLContext gui_glctx;
 SDL_GLContext gui_gpuglctx;
 struct nk_context gui_nkctx;
 
+#define GUI_FONT_SIZE 16.0f
+
 void gui_init(void)
 {
     gui_window = SDL_CreateWindow(
@@ -77,7 +79,7 @@ void gui_init(void)
     const void *font_pixels;
     nk_font_atlas_init_default(&font_atlas);
     nk_font_atlas_begin(&font_atlas);
-    font = nk_font_atlas_add_default(&font_atlas, 16.0f, NULL);
+    font = nk_font_atlas_add_default(&font_atlas, GUI_FONT_SIZE, NULL);
     font_pixels = nk_font_atlas_bake(
         &font_atlas,
         &font_width,

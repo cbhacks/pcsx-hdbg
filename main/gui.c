@@ -167,7 +167,7 @@ void gui_update(void)
 
 static void gui_draw(void)
 {
-    const float window_spacing = 20.0f;
+    const float window_spacing = 80.0f;
     const struct nk_rect window_rect = {
         window_spacing,
         window_spacing,

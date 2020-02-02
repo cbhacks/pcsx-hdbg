@@ -34,6 +34,7 @@
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
 #define NK_SIZE_TYPE size_t
+#define NK_POINTER_TYPE uintptr_t
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"

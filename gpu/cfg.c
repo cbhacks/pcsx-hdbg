@@ -231,7 +231,7 @@ void ReadConfig(void)                                  // read config (linux fil
  bFullScreen=FALSE;
  bFullVRam=FALSE;
  iFilterType=0;
- bAdvancedBlend=FALSE;
+ bAdvancedBlend=TRUE;
  bDrawDither=FALSE;
  bUseLines=FALSE;
  bUseFrameLimit=TRUE;

@@ -252,7 +252,7 @@ void gui_update(void)
 
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
-            pad_handlejbutton(ev.jbutton.button, ev.type == SDL_CONTROLLERBUTTONDOWN);
+            pad_handlejbutton(ev.cbutton.button, ev.type == SDL_CONTROLLERBUTTONDOWN);
             break;
 
         case SDL_MOUSEBUTTONDOWN:

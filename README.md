@@ -37,7 +37,7 @@ environment, using a script in the `tools` directory.
 
 
 ## Controls ##
-By default, the game is presented with a single digital controller. The
+By default, the game is presented with a single analog controller. The
 controller buttons are bound to the following keys by default:
 
 | Key | Button |
@@ -69,6 +69,13 @@ keymap["Space"] = "x"
 Key names are taken from <https://wiki.libsdl.org/SDL_Keycode>, while
 button names are from the table above. Both key and button names are
 case-sensitive.
+
+By default, the first available joystick or gamepad input device is also
+used to provide input for the analog controller. This should be an SDL2
+Game Controller-compatible controller (such as an XInput-compatible one
+on Windows). The selected controller may be changed by setting the
+`joyid` option in the config file, or disabled completely by setting it
+to `nil`.
 
 
 ## Scripting ##

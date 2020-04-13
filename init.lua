@@ -41,6 +41,7 @@ config = {
     scriptfile = "script.lua",
     gamefile = "game.bin",
     region = "ntsc",
+    joyid = 0,
     gamecontrollerdb =
 [[
 

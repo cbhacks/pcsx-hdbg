@@ -44,8 +44,11 @@ const char *pad_buttonnames[] = {
     NULL
 };
 
-static uint16_t pad_buttons = 0xFFFF;
+static uint16_t pad_keybuttons = 0xFFFF;
+static uint16_t pad_joybuttons = 0xFFFF;
 static uint16_t pad_bindings[SDL_NUM_SCANCODES];
+
+static SDL_GameController *pad_joystick = NULL;
 
 extern lua_State *L;
 
@@ -56,8 +59,8 @@ void pad_init(void)
     }
 
     lua_getglobal(L, "config");
+
     lua_getfield(L, -1, "keymap");
-    lua_remove(L, -2);
     int t_type = lua_type(L, -1);
     if (t_type != LUA_TTABLE) {
         fprintf(
@@ -131,15 +134,132 @@ void pad_init(void)
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
+
+    lua_getfield(L, -1, "gamecontrollerdb");
+    t_type = lua_type(L, -1);
+    if (t_type != LUA_TSTRING) {
+        fprintf(
+            stderr,
+            "Error in config: Bad gamecontrollerdb (was %s, expected string)\n",
+            lua_typename(L, t_type)
+        );
+        exit(EXIT_FAILURE);
+    }
+    const char *str = lua_tolstring(L, -1, NULL);
+    int err = SDL_GameControllerAddMapping(str);
+    if (err == -1) {
+        fprintf(
+            stderr,
+            "SDL_GameControllerAddMapping failed: %s\n",
+            SDL_GetError()
+        );
+        exit(EXIT_FAILURE);
+    }
+    lua_pop(L, 1);
+
+    lua_getfield(L, -1, "joyid");
+    t_type = lua_type(L, -1);
+    if (t_type != LUA_TNIL) {
+        int isnum;
+        lua_Integer joyid = lua_tointegerx(L, -1, &isnum);
+        if (!isnum) {
+            fprintf(
+                stderr,
+                "Error in config: Bad joyid (was %s, expected integer)\n",
+                lua_typename(L, t_type)
+            );
+            exit(EXIT_FAILURE);
+        }
+
+        int err = SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+        if (err) {
+            fprintf(
+                stderr,
+                "SDL_InitSubSystem for game controllers failed: %s\n",
+                SDL_GetError()
+            );
+            exit(EXIT_FAILURE);
+        }
+
+        int joystick_count = SDL_NumJoysticks();
+        if (joystick_count < 0) {
+            fprintf(
+                stderr,
+                "SDL_NumJoysticks failed: %s\n",
+                SDL_GetError()
+            );
+            SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Joysticks available:\n");
+        printf("------------------------\n");
+
+        for (int i = 0; i < joystick_count; i++) {
+            SDL_GameController *joystick = SDL_GameControllerOpen(i);
+            if (!joystick) {
+                fprintf(
+                    stderr,
+                    "SDL_OpenGameController failed: %s\n",
+                    SDL_GetError()
+                );
+                continue;
+            }
+
+            if (joyid != -1 && joyid == i) {
+                pad_joystick = joystick;
+                printf("--> ");
+            } else {
+                printf("    ");
+            }
+
+            char guid[100];
+            SDL_JoystickGetGUIDString(
+                SDL_JoystickGetGUID(
+                    SDL_GameControllerGetJoystick(joystick)
+                ),
+                guid,
+                sizeof(guid)
+            );
+
+            printf("%2d: %s [%s]\n", i, SDL_GameControllerName(joystick), guid);
+
+            if (pad_joystick != joystick) {
+                SDL_GameControllerClose(joystick);
+            }
+        }
+
+        printf("------------------------\n");
+
+        if (!pad_joystick) {
+            printf("No joystick was selected.\n");
+            SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+        }
+    } else if (t_type != LUA_TNIL) {
+        fprintf(
+            stderr,
+            "Error in config: Bad joyid value (was %s, expected string)\n",
+            lua_typename(L, t_type)
+        );
+        exit(EXIT_FAILURE);
+    }
+    lua_pop(L, 1);
+
+    lua_pop(L, 1);
 }
 
 void pad_quit(void)
 {
+    if (pad_joystick) {
+        SDL_GameControllerClose(pad_joystick);
+        SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+        pad_joystick = NULL;
+    }
 }
 
 uint16_t pad_getbuttons(void)
 {
-    return pad_buttons;
+    return pad_keybuttons & pad_joybuttons;
 }
 
 void pad_handlekey(SDL_Scancode scancode, int down)
@@ -151,15 +271,81 @@ void pad_handlekey(SDL_Scancode scancode, int down)
     uint16_t buttonmask = 1 << button;
 
     if (down) {
-        pad_buttons &= ~buttonmask;
+        pad_keybuttons &= ~buttonmask;
     } else {
-        pad_buttons |= buttonmask;
+        pad_keybuttons |= buttonmask;
+    }
+}
+
+void pad_handlejbutton(int jbutton, int down)
+{
+    int button;
+    switch (jbutton) {
+
+    case SDL_CONTROLLER_BUTTON_A:
+        button = PAD_BUTTON_X;
+        break;
+    case SDL_CONTROLLER_BUTTON_B:
+        button = PAD_BUTTON_CIRCLE;
+        break;
+    case SDL_CONTROLLER_BUTTON_X:
+        button = PAD_BUTTON_SQUARE;
+        break;
+    case SDL_CONTROLLER_BUTTON_Y:
+        button = PAD_BUTTON_TRIANGLE;
+        break;
+
+    case SDL_CONTROLLER_BUTTON_BACK:
+        button = PAD_BUTTON_SELECT;
+        break;
+    case SDL_CONTROLLER_BUTTON_START:
+        button = PAD_BUTTON_START;
+        break;
+
+    case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+        button = PAD_BUTTON_L3;
+        break;
+    case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+        button = PAD_BUTTON_R3;
+        break;
+
+    case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+        button = PAD_BUTTON_L1;
+        break;
+    case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+        button = PAD_BUTTON_R1;
+        break;
+
+    case SDL_CONTROLLER_BUTTON_DPAD_UP:
+        button = PAD_BUTTON_UP;
+        break;
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+        button = PAD_BUTTON_DOWN;
+        break;
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+        button = PAD_BUTTON_LEFT;
+        break;
+    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+        button = PAD_BUTTON_RIGHT;
+        break;
+
+    default:
+        return;
+
+    }
+
+    uint16_t buttonmask = 1 << button;
+
+    if (down) {
+        pad_joybuttons &= ~buttonmask;
+    } else {
+        pad_joybuttons |= buttonmask;
     }
 }
 
 void pad_clearkeys(void)
 {
-    pad_buttons = 0xFFFF;
+    pad_keybuttons = 0xFFFF;
 }
 
 int pad_lookupname(const char *name)

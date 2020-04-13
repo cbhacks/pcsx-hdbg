@@ -709,7 +709,9 @@ static void intShutdown() {
 
 // interpreter execution
 static inline void execI() { 
-    trap_raise(psxRegs.pc);
+    if (CONSIDER_TRAP(psxRegs.pc)) {
+        trap_raise(psxRegs.pc);
+    }
 
 	u32 *code = Read_ICache(psxRegs.pc, FALSE);
 	psxRegs.code = ((code == NULL) ? 0 : SWAP32(*code));

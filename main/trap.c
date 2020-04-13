@@ -32,7 +32,7 @@ struct trap {
     struct trap *next;
 };
 
-static struct trap *trapchains[0x10000];
+struct trap *trap_chains[0x10000];
 
 static int scr_trapexec(lua_State *L)
 {
@@ -49,8 +49,8 @@ static int scr_trapexec(lua_State *L)
 
     new_trap->addr = addr;
     new_trap->func = func;
-    new_trap->next = trapchains[addr & 0xFFFF];
-    trapchains[addr & 0xFFFF] = new_trap;
+    new_trap->next = trap_chains[TRAP_HASH(addr)];
+    trap_chains[TRAP_HASH(addr)] = new_trap;
     return 0;
 }
 
@@ -71,7 +71,7 @@ void trap_quit(void)
 
 void trap_raise(uint32_t addr)
 {
-    for (struct trap *it = trapchains[addr & 0xFFFF]; it; it = it->next) {
+    for (struct trap *it = trap_chains[TRAP_HASH(addr)]; it; it = it->next) {
         if (it->addr != addr)
             continue;
 

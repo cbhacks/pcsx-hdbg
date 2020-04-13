@@ -21,6 +21,12 @@
 
 #include <stdint.h>
 
+#define TRAP_HASH(addr) ((addr) & 0xFFFF)
+
+#define CONSIDER_TRAP(addr) (trap_chains[TRAP_HASH(addr)] != NULL)
+
+extern struct trap *trap_chains[];
+
 void trap_init(void);
 void trap_quit(void);
 

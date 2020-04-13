@@ -48,6 +48,11 @@ static uint16_t pad_keybuttons = 0xFFFF;
 static uint16_t pad_joybuttons = 0xFFFF;
 static uint16_t pad_bindings[SDL_NUM_SCANCODES];
 
+static uint8_t pad_analoglx = 0x80;
+static uint8_t pad_analogly = 0x80;
+static uint8_t pad_analogrx = 0x80;
+static uint8_t pad_analogry = 0x80;
+
 static SDL_GameController *pad_joystick = NULL;
 
 extern lua_State *L;
@@ -262,6 +267,14 @@ uint16_t pad_getbuttons(void)
     return pad_keybuttons & pad_joybuttons;
 }
 
+void pad_getanalogs(uint8_t *lx, uint8_t *ly, uint8_t *rx, uint8_t *ry)
+{
+    *lx = pad_analoglx;
+    *ly = pad_analogly;
+    *rx = pad_analogrx;
+    *ry = pad_analogry;
+}
+
 void pad_handlekey(SDL_Scancode scancode, int down)
 {
     int button = pad_bindings[scancode];
@@ -340,6 +353,33 @@ void pad_handlejbutton(int jbutton, int down)
         pad_joybuttons &= ~buttonmask;
     } else {
         pad_joybuttons |= buttonmask;
+    }
+}
+
+void pad_handlejaxis(int jaxis, int position)
+{
+    uint16_t value = position;
+    value += 0x8000;
+    value >>= 8;
+
+    switch (jaxis) {
+
+    case SDL_CONTROLLER_AXIS_LEFTX:
+        pad_analoglx = value;
+        break;
+
+    case SDL_CONTROLLER_AXIS_LEFTY:
+        pad_analogly = value;
+        break;
+
+    case SDL_CONTROLLER_AXIS_RIGHTX:
+        pad_analogrx = value;
+        break;
+
+    case SDL_CONTROLLER_AXIS_RIGHTY:
+        pad_analogry = value;
+        break;
+
     }
 }
 

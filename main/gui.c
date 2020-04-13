@@ -255,6 +255,10 @@ void gui_update(void)
             pad_handlejbutton(ev.cbutton.button, ev.type == SDL_CONTROLLERBUTTONDOWN);
             break;
 
+        case SDL_CONTROLLERAXISMOTION:
+            pad_handlejaxis(ev.caxis.axis, ev.caxis.value);
+            break;
+
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             if (gui_isopen) {

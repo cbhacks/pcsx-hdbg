@@ -47,9 +47,11 @@ void pad_init(void);
 void pad_quit(void);
 
 uint16_t pad_getbuttons(void);
+void pad_getanalogs(uint8_t *lx, uint8_t *ly, uint8_t *rx, uint8_t *ry);
 
 void pad_handlekey(SDL_Scancode scancode, int down);
 void pad_handlejbutton(int jbutton, int down);
+void pad_handlejaxis(int axis, int state);
 
 void pad_clearkeys(void);
 

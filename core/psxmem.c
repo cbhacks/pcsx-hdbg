@@ -117,7 +117,6 @@ int psxMemInit() {
 
 void psxMemReset() {
 	FILE *f = NULL;
-	char bios[1024] = { '\0' };
 	//char temp[1024] = { '\0' };
 
 	memset(psxM, 0, 0x00200000);
@@ -134,15 +133,10 @@ void psxMemReset() {
 		*/
 
 	   //AppPath's priority is high.
-		const char* apppath = GetAppPath();
-		if( strlen(apppath) > 0 )
-			strcat( strcat( strcat( bios, GetAppPath() ), "bios\\"), Config.Bios );
-		else
-			sprintf(bios, "%s/%s", Config.BiosDir, Config.Bios);
-		f = fopen(bios, "rb");
+		f = fopen(Config.Bios, "rb");
 
 		if (f == NULL) {
-			SysMessage(_("Could not open BIOS:\"%s\". Enabling HLE Bios!\n"), bios);
+			SysMessage(_("Could not open BIOS:\"%s\". Enabling HLE Bios!\n"), Config.Bios);
 			memset(psxR, 0, 0x80000);
 			Config.HLE = TRUE;
 		} else {
@@ -150,7 +144,7 @@ void psxMemReset() {
 			fclose(f);
 			Config.HLE = FALSE;
 
-			SysPrintf(_("Loaded BIOS: %s\n"), bios );
+			SysPrintf(_("Loaded BIOS: %s\n"), Config.Bios );
 		}
 	} else Config.HLE = TRUE;
 }

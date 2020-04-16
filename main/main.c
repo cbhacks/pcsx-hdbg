@@ -146,7 +146,7 @@ int main(int argc, char **argv)
     strcpy(Config.Spu, "libpcsx-hdbg-spu.dll");
     strcpy(Config.Gpu, "libpcsx-hdbg-gpu.dll");
 #endif
-    strcpy(Config.Bios, "HLE");
+    strcpy(Config.Bios, "bios.dat");
     strcpy(Config.Mcd1, "memcard1.dat");
     strcpy(Config.Mcd2, "memcard2.dat");
 

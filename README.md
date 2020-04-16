@@ -105,3 +105,12 @@ Other options available:
 |--------|---------|---------|
 |gamefile|         |game.bin |
 |region  |ntsc, pal|ntsc     |
+
+
+## BIOS ##
+The emulator includes an HLE (High Level Emulation) BIOS, which emulates
+some functionality of the console's BIOS ROM. This is compatible with some
+games (Crash 2), but not others (Crash 3: Warped, CTR). For these, you may
+place an appropriate 512K BIOS ROM file into the application directory
+under the name `bios.dat`. If this file is not found, the HLE BIOS will be
+enabled in its place.

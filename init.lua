@@ -1099,6 +1099,38 @@ do
     end
 end
 
+-- Provide type conversion functions.
+function u8(n)
+    return n & 0xFF
+end
+function u16(n)
+    return n & 0xFFFF
+end
+function u32(n)
+    return n & 0xFFFFFFFF
+end
+function i8(n)
+    n = n & 0xFF
+    if n & 0x80 == 0x80 then
+        n = n | 0xFFFFFFFFFFFFFF00
+    end
+    return n
+end
+function i16(n)
+    n = n & 0xFFFF
+    if n & 0x8000 == 0x8000 then
+        n = n | 0xFFFFFFFFFFFF0000
+    end
+    return n
+end
+function i32(n)
+    n = n & 0xFFFFFFFF
+    if n & 0x80000000 == 0x80000000 then
+        n = n | 0xFFFFFFFF00000000
+    end
+    return n
+end
+
 -- Run the user script.
 print "Starting user script..."
 local thread = coroutine.create(script)

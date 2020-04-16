@@ -41,6 +41,18 @@ This function takes the same parameters as Lua's `string.format`, but
 the result is printed rather than returned.
 
 
+* `u8(value) => value`
+* `u16(value) => value`
+* `u32(value) => value`
+* `i8(value) => value`
+* `i16(value) => value`
+* `i32(value) => value`
+
+These functions forcibly convert a value to an integer and interpret the
+lower 8, 16, or 32 bits respectively and perform zero-extension (`u') or
+sign-extension (`i').
+
+
 ## Memory Access ##
 * `reads8(addr) => value`
 * `reads16(addr) => value`

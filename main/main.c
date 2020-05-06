@@ -150,6 +150,8 @@ int main(int argc, char **argv)
     strcpy(Config.Mcd1, "memcard1.dat");
     strcpy(Config.Mcd2, "memcard2.dat");
 
+    Config.PsxOut = 1;
+
     err = EmuInit();
     if (err == -1) {
         fprintf(stderr, "Failed to initialize emulator.\n");

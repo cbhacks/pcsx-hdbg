@@ -37,6 +37,7 @@
 lua_State *L;
 static lua_State *Lupdatethread;
 static int updatethread_ref;
+static int updatethread_suspended = 0;
 
 static void cleanup_lua(void)
 {
@@ -56,6 +57,8 @@ static _Noreturn void panic_lua(void)
 
 void update_lua(void)
 {
+    if (updatethread_suspended)
+        return;
     if (!Lupdatethread)
         return;
 
@@ -117,6 +120,7 @@ int main(int argc, char **argv)
     updatethread_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_xmove(L, Lupdatethread, 1);
     update_lua();
+    updatethread_suspended = 1;
 
     sys_init();
     atexit(sys_quit);
@@ -194,6 +198,12 @@ int main(int argc, char **argv)
     CheckCdrom();
     LoadCdrom();
 
+    // Execute BIOS until EXE entry point.
+    while (psxRegs.pc < 0x80010000 || psxRegs.pc > 0x801FFFFF) {
+        psxCpu->ExecuteBlock();
+    }
+
+    updatethread_suspended = 0;
     update_lua();
 
     psxCpu->Execute();

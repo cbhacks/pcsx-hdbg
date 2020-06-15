@@ -19,6 +19,8 @@
 #ifndef H__HDBG_PAD__H
 #define H__HDBG_PAD__H
 
+#include <stdbool.h>
+
 #include <SDL.h>
 
 enum {
@@ -48,6 +50,7 @@ void pad_quit(void);
 
 uint16_t pad_getbuttons(void);
 void pad_getanalogs(uint8_t *lx, uint8_t *ly, uint8_t *rx, uint8_t *ry);
+bool pad_hasanalogs(void);
 
 void pad_handlekey(SDL_Scancode scancode, int down);
 void pad_handlejbutton(int jbutton, int down);

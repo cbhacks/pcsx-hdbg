@@ -23,6 +23,7 @@
 
 #include <SDL.h>
 #include "lua.h"
+#include "lauxlib.h"
 
 const char *pad_buttonnames[] = {
     "select",
@@ -53,12 +54,27 @@ static uint8_t pad_analogly = 0x80;
 static uint8_t pad_analogrx = 0x80;
 static uint8_t pad_analogry = 0x80;
 
+static bool pad_forcedigital = false;
+
 static SDL_GameController *pad_joystick = NULL;
+
+static int scr_forcedigitalpad(lua_State *L)
+{
+    luaL_checktype(L, 1, LUA_TBOOLEAN);
+    pad_forcedigital = lua_toboolean(L, 1);
+    return 0;
+}
 
 extern lua_State *L;
 
+#define DEFINE_LUA_FUNCTION(name) \
+    lua_pushcfunction(L, scr_##name); \
+    lua_setglobal(L, #name);
+
 void pad_init(void)
 {
+    DEFINE_LUA_FUNCTION(forcedigitalpad);
+
     for (int i = 0; i < SDL_NUM_SCANCODES; i++) {
         pad_bindings[i] = -1;
     }
@@ -273,6 +289,11 @@ void pad_getanalogs(uint8_t *lx, uint8_t *ly, uint8_t *rx, uint8_t *ry)
     *ly = pad_analogly;
     *rx = pad_analogrx;
     *ry = pad_analogry;
+}
+
+bool pad_hasanalogs(void)
+{
+    return !pad_forcedigital;
 }
 
 void pad_handlekey(SDL_Scancode scancode, int down)

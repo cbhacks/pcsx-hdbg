@@ -218,6 +218,16 @@ Changing the value of these variables has no effect on the region used
 by the emulator.
 
 
+* `forcedigitalpad(enabled)`
+
+If called with `true`, forces the emulator to report the gamepad as a
+digital gamepad and not an analog one. Calling this with `false` reverts
+this behavior. Digital gamepads do not have analog sticks.
+
+This API exists to support games which do not function properly with an
+analog controller (e.g. Crash 1).
+
+
 ## Continual Updating ##
 Rather than returning, the script may yield (`coroutine.yield()`). In
 this case, rather than exiting, the script continues to live suspended

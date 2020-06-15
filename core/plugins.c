@@ -452,7 +452,7 @@ unsigned char PAD1__startPoll(int pad) {
     PadDataS padd;
 
     memset(&padd, 0, sizeof(padd));
-    padd.controllerType = PSE_PAD_TYPE_ANALOGPAD;
+    padd.controllerType = pad_hasanalogs() ? PSE_PAD_TYPE_ANALOGPAD : PSE_PAD_TYPE_STANDARD;
     padd.buttonStatus = pad_getbuttons();
     pad_getanalogs(
         &padd.leftJoyX,

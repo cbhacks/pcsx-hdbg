@@ -55,6 +55,18 @@ static _Noreturn void panic_lua(void)
     exit(EXIT_FAILURE);
 }
 
+#ifdef _WIN32
+static int scr_osexit(lua_State *L)
+{
+    luaL_checktype(L, 1, LUA_TBOOLEAN);
+    bool success = lua_toboolean(L, 1);
+
+    printf("Program terminated by script (%s).\n", success ? "success" : "failure");
+    system("pause");
+    exit(success ? EXIT_SUCCESS : EXIT_FAILURE);
+}
+#endif
+
 void update_lua(void)
 {
     if (updatethread_suspended)
@@ -101,6 +113,13 @@ int main(int argc, char **argv)
     atexit(cleanup_lua);
 
     luaL_openlibs(L);
+
+#ifdef _WIN32
+    lua_getglobal(L, "os");
+    lua_pushcfunction(L, scr_osexit);
+    lua_setfield(L, -2, "exit");
+    lua_pop(L, 1);
+#endif
 
     lua_newtable(L);
     for (int i = 1; i < argc; i++) {

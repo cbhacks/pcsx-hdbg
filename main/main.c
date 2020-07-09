@@ -30,6 +30,7 @@
 #include <hdbg_ram.h>
 #include <hdbg_mem.h>
 #include <hdbg_pad.h>
+#include <hdbg_cdr.h>
 #include <hdbg_trap.h>
 
 #include "../core/r3000a.h"
@@ -158,6 +159,9 @@ int main(int argc, char **argv)
 
     pad_init();
     atexit(pad_quit);
+
+    cdr_init();
+    atexit(cdr_quit);
 
     trap_init();
     atexit(trap_quit);

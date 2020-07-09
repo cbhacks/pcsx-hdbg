@@ -42,6 +42,7 @@ config = {
     gamefile = "game.bin",
     region = "ntsc",
     joyid = 0,
+    cdrspeed = 1,
     gamecontrollerdb =
 [[
 

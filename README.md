@@ -105,6 +105,7 @@ Other options available:
 |--------|---------|---------|
 |gamefile|         |game.bin |
 |region  |ntsc, pal|ntsc     |
+|cdrspeed|         |1        |
 
 
 ## BIOS ##

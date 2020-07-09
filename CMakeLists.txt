@@ -174,6 +174,7 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
         main/ram.c
         main/mem.c
         main/pad.c
+        main/cdr.c
         main/trap.c
         "${CMAKE_CURRENT_BINARY_DIR}/init.lua.c"
     )

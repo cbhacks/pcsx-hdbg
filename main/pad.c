@@ -401,6 +401,22 @@ void pad_handlejaxis(int jaxis, int position)
         pad_analogry = value;
         break;
 
+    case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: {
+        uint64_t buttonmask;
+        if (jaxis == SDL_CONTROLLER_AXIS_TRIGGERLEFT) {
+            buttonmask = 1 << PAD_BUTTON_L2;
+        } else {
+            buttonmask = 1 << PAD_BUTTON_R2;
+        }
+        if (position >= 32767 / 3) {
+            pad_joybuttons &= ~buttonmask;
+        } else {
+            pad_joybuttons |= buttonmask;
+        }
+        break;
+    }
+
     }
 }
 

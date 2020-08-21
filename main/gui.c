@@ -136,6 +136,12 @@ void gui_init(void)
     DEFINE_LUA_LOCAL_FUNCTION(gui, label);
     lua_setglobal(L, "gui");
 
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
     gui_window = SDL_CreateWindow(
         "PCSX-HDBG",
         SDL_WINDOWPOS_CENTERED,

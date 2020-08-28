@@ -46,6 +46,8 @@ SDL_GLContext gui_glctx;
 SDL_GLContext gui_gpuglctx;
 struct nk_context gui_nkctx;
 
+static bool inputstarted = false;
+
 #define GUI_FONT_SIZE 16.0f
 
 struct tool {
@@ -231,7 +233,11 @@ void gui_setopen(_Bool open)
 
 void gui_update(void)
 {
-    nk_input_begin(&gui_nkctx);
+    if (!inputstarted) {
+        nk_input_begin(&gui_nkctx);
+        inputstarted = true;
+    }
+
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
@@ -299,7 +305,6 @@ void gui_update(void)
 
         }
     }
-    nk_input_end(&gui_nkctx);
 
     extern void update_lua(void);
     update_lua();
@@ -307,6 +312,11 @@ void gui_update(void)
 
 static void gui_draw(void)
 {
+    if (inputstarted) {
+        nk_input_end(&gui_nkctx);
+        inputstarted = false;
+    }
+
     const float window_spacing = 80.0f;
     const struct nk_rect window_rect = {
         window_spacing,

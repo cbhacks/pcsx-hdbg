@@ -35,7 +35,7 @@ extern "C" {
 
 #include "psxcommon.h"
 
-typedef long (*GPUopen)(void (*)(void), char *, char *);
+typedef long (*GPUopen)(void (*)(void), char *, char *, int, int);
 typedef long (*SPUopen)(void);
 typedef long (*NETopen)(unsigned long *);
 typedef long (*SIO1open)(unsigned long *);

@@ -41,6 +41,7 @@
 #include "nuklear.h"
 #pragma GCC diagnostic pop
 
+float gui_scale;
 SDL_Window *gui_window;
 SDL_GLContext gui_glctx;
 SDL_GLContext gui_gpuglctx;
@@ -48,7 +49,7 @@ struct nk_context gui_nkctx;
 
 static bool inputstarted = false;
 
-#define GUI_FONT_SIZE 16.0f
+#define GUI_FONT_SIZE (gui_scale * 16.0f)
 
 struct tool {
     char name[20];
@@ -132,6 +133,29 @@ extern lua_State *L;
 
 void gui_init(void)
 {
+    int ok;
+    lua_getglobal(L, "config");
+
+    lua_getfield(L, -1, "scale");
+    gui_scale = lua_tonumberx(L, -1, &ok);
+    if (!ok) {
+        fprintf(
+            stderr,
+            "Error in config: Bad scale (not a number)\n"
+        );
+        exit(EXIT_FAILURE);
+    }
+    if (gui_scale < 0.1) {
+        fprintf(
+            stderr,
+            "Error in config: Bad scale (less than minimum 0.1)\n"
+        );
+        exit(EXIT_FAILURE);
+    }
+    lua_pop(L, 1);
+
+    lua_pop(L, 1);
+
     DEFINE_LUA_FUNCTION(guitool);
     lua_newtable(L);
     DEFINE_LUA_LOCAL_FUNCTION(gui, row);
@@ -317,7 +341,7 @@ static void gui_draw(void)
         inputstarted = false;
     }
 
-    const float window_spacing = 80.0f;
+    const float window_spacing = 80.0f * gui_scale;
     const struct nk_rect window_rect = {
         window_spacing,
         window_spacing,

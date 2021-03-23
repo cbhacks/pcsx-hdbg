@@ -21,8 +21,10 @@
 
 #include <SDL.h>
 
-#define GUI_WIDTH 1024
-#define GUI_HEIGHT 768
+extern float gui_scale;
+
+#define GUI_WIDTH ((int)(1024 * gui_scale))
+#define GUI_HEIGHT ((int)(768 * gui_scale))
 
 extern SDL_Window *gui_window;
 extern SDL_GLContext gui_glctx;

@@ -43,6 +43,7 @@ config = {
     region = "ntsc",
     joyid = 0,
     cdrspeed = 1,
+    scale = 1,
     gamecontrollerdb =
 [[
 

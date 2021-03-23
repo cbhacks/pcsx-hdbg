@@ -222,8 +222,6 @@ void ReadConfigFile()
 
 void ReadConfig(void)                                  // read config (linux file)
 {
- iResX=GUI_WIDTH;
- iResY=GUI_HEIGHT;
  iColDepth=16;
  bChangeRes=FALSE;
  bWindowMode=TRUE;

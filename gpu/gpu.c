@@ -537,7 +537,7 @@ static int fx=0;
 
 static void (*finishframe)(void);
 
-long DLLEXPORT GPUopen(void(*f)(void),char * CapText,char * CfgFile)
+long DLLEXPORT GPUopen(void(*f)(void),char * CapText,char * CfgFile,int width,int height)
 {
     finishframe = f;
 
@@ -545,6 +545,9 @@ long DLLEXPORT GPUopen(void(*f)(void),char * CapText,char * CfgFile)
  pConfigFile=CfgFile;
 
  ReadConfig();                                         // read text file for config
+
+ iResX=width;
+ iResY=height;
 
  SetFrameRateConfig();                                 // setup frame rate stuff
 

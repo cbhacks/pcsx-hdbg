@@ -207,7 +207,7 @@ int main(int argc, char **argv)
     }
     atexit((void (*)(void))SPU_close);
 
-    err = GPU_open(gui_finishframe, "PCSX-HDBG", NULL);
+    err = GPU_open(gui_finishframe, "PCSX-HDBG", NULL, GUI_WIDTH, GUI_HEIGHT);
     if (err < 0) {
         fprintf(stderr, "Failed to initialize GPU.\n");
         return EXIT_FAILURE;

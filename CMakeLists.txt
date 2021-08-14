@@ -43,9 +43,15 @@ if (BUILD_LEVEL STREQUAL "STANDARD" OR BUILD_LEVEL STREQUAL "CROSS_TARGET")
     find_package (SDL2 REQUIRED)
     find_package (OpenGL REQUIRED)
 
-    # Fix an SDL2 bug (error CMP0004).
-    # https://bugzilla.libsdl.org/show_bug.cgi?id=3295
-    string (STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
+    if (DEFINED SDL2_LIBRARIES)
+        # Fix an SDL2 bug (error CMP0004).
+        # https://bugzilla.libsdl.org/show_bug.cgi?id=3295
+        string (STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
+    else ()
+        # Workaround for incompatible new SDL2 CMake configs. Use pkg-config instead.
+        find_package (PkgConfig REQUIRED)
+        pkg_search_module (SDL2 REQUIRED sdl2)
+    endif ()
 
     add_library (pcsx-hdbg-core STATIC
         core/cdriso.c

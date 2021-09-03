@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
  *   Copyright (C) 2007 PCSX-df Team                                       *
  *   Copyright (C) 2009 Wei Mingzhi                                        *

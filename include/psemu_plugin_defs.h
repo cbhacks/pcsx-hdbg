@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 #ifndef _PSEMU_PLUGIN_DEFS_H
 #define _PSEMU_PLUGIN_DEFS_H
 

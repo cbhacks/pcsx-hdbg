@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
  *   Copyright (C) 2007 Ryan Schultz, PCSX-df Team, PCSX team              *
  *                                                                         *
@@ -41,11 +43,6 @@ extern "C" {
 #include "config.h"
 
 // System includes
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include <ctype.h>

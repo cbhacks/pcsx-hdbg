@@ -19,6 +19,8 @@
 #ifndef H__HDBG_MEM__H
 #define H__HDBG_MEM__H
 
+#include <hdbg_common.h>
+
 void mem_init(void);
 void mem_quit(void);
 

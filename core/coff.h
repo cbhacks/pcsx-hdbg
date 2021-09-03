@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /*
  * Copyright (c) 1995
  *	Ted Lemon (hereinafter referred to as the author)

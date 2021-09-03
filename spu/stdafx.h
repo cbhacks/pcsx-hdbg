@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
                            StdAfx.h  -  description
                              -------------------
@@ -25,8 +27,6 @@
  ***************************************************************************/
 
 #include "config.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #ifdef USEOSS
@@ -35,7 +35,6 @@
 #include <unistd.h>
 #include <pthread.h>
 #define RRand(range) (random()%range)  
-#include <string.h> 
 #include <sys/time.h>  
 #include <math.h>  
 

@@ -19,7 +19,7 @@
 #ifndef H__HDBG_GUI__H
 #define H__HDBG_GUI__H
 
-#include <SDL.h>
+#include <hdbg_common.h>
 
 extern float gui_scale;
 

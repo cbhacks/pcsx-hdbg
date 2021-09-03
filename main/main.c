@@ -16,10 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <hdbg_common.h>
 
-#include <SDL.h>
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"

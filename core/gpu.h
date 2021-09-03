@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 #ifndef __GPU_H__
 #define __GPU_H__
 

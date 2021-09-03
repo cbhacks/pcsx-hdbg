@@ -16,13 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <hdbg_common.h>
 #include <hdbg_sys.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-
-#include <SDL.h>
 #include "lua.h"
 
 #include "../core/r3000a.h"

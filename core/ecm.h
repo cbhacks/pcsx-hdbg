@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 #define TITLE "ecm - Encoder/decoder for Error Code Modeler format"

@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
                           external.h  -  description
                              -------------------
@@ -86,8 +88,6 @@
 #define KEY_TOGGLEFBTEXTURE 128
 #define KEY_STEPDOWN        256
 #define KEY_TOGGLEFBREAD    512
-
-#define bool unsigned short
 
 #ifndef _WIN32
 

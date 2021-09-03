@@ -16,20 +16,20 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef H__HDBG_TRAP__H
-#define H__HDBG_TRAP__H
+#ifndef H__HDBG_COMMON__H
+#define H__HDBG_COMMON__H
 
-#include <hdbg_common.h>
+// Include standard libraries.
+#include <stddef.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-#define TRAP_HASH(addr) ((addr) & 0xFFFF)
-
-#define CONSIDER_TRAP(addr) (trap_chains[TRAP_HASH(addr)] != NULL)
-
-extern struct trap *trap_chains[];
-
-void trap_init(void);
-void trap_quit(void);
-
-void trap_raise(uint32_t addr);
+// Include SDL version 2.
+#include <SDL.h>
 
 #endif

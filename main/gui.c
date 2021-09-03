@@ -16,14 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <hdbg_common.h>
 #include <hdbg_gui.h>
-
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <hdbg_pad.h>
 
-#include <SDL.h>
 #include <GL/gl.h>
 #include "lua.h"
 #include "lauxlib.h"

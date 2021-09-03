@@ -19,9 +19,7 @@
 #ifndef H__HDBG_PAD__H
 #define H__HDBG_PAD__H
 
-#include <stdbool.h>
-
-#include <SDL.h>
+#include <hdbg_common.h>
 
 enum {
     PAD_BUTTON_SELECT,

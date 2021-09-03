@@ -19,6 +19,8 @@
 #ifndef H__HDBG_CPU__H
 #define H__HDBG_CPU__H
 
+#include <hdbg_common.h>
+
 void cpu_init(void);
 void cpu_quit(void);
 

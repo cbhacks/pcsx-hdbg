@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /*  Copyright (c) 2010, shalma.
  *  Portions Copyright (c) 2002, Pete Bernert.
  *

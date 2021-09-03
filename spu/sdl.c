@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /* SDL Driver for P.E.Op.S Sound Plugin
  * Copyright (c) 2010, Wei Mingzhi <whistler_wmz@users.sf.net>.
  *
@@ -28,7 +30,6 @@
 #include "stdafx.h"
 
 #include "externals.h"
-#include <SDL.h>
 
 #define BUFFER_SIZE		22050
 

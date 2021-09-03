@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
                           stdafx.h  -  description
                              -------------------
@@ -28,10 +30,6 @@
 #define __X11_C_
 #define __inline inline
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>

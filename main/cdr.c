@@ -16,12 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <hdbg_common.h>
 #include <hdbg_cdr.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <SDL.h>
 #include "lua.h"
 #include "lauxlib.h"
 

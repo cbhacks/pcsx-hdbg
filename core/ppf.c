@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /*  PPF/SBI Support for PCSX-Reloaded
  *  Copyright (c) 2009, Wei Mingzhi <whistler_wmz@users.sf.net>.
  *  Copyright (c) 2010, shalma.

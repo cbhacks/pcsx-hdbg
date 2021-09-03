@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
  *   Copyright (C) 2007 Ryan Schultz, PCSX-df Team, PCSX team              *
  *                                                                         *
@@ -34,7 +36,6 @@
 #include "cdrom.h"
 #include "mdec.h"
 #include "ppf.h"
-#include <stddef.h>
 #include <hdbg_gui.h>
 
 char CdromId[10] = "";

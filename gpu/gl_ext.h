@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 #define COMBINE_EXT          0x8570
 #define COMBINE_RGB_EXT      0x8571
 #define COMBINE_ALPHA_EXT    0x8572

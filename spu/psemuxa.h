@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 //============================================
 //=== Audio XA decoding
 //=== Kazzuya

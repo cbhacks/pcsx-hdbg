@@ -19,6 +19,8 @@
 #ifndef H__HDBG_SYS__H
 #define H__HDBG_SYS__H
 
+#include <hdbg_common.h>
+
 void sys_init(void);
 void sys_quit(void);
 

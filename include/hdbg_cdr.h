@@ -19,6 +19,8 @@
 #ifndef H__HDBG_CDR__H
 #define H__HDBG_CDR__H
 
+#include <hdbg_common.h>
+
 extern float cdr_speedfactor;
 
 void cdr_init(void);

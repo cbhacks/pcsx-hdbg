@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
                             spu.c  -  description
                              -------------------
@@ -27,8 +29,6 @@
 #include "stdafx.h"
 
 #define _IN_SPU
-
-#include <SDL.h>
 
 #include "externals.h"
 #include "cfg.h"

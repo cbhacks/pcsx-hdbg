@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <hdbg_common.h>
 #include <hdbg_cpu.h>
 
 #include "lua.h"

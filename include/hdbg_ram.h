@@ -19,6 +19,8 @@
 #ifndef H__HDBG_RAM__H
 #define H__HDBG_RAM__H
 
+#include <hdbg_common.h>
+
 extern void *ram_base;
 
 void ram_init(void);

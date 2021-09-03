@@ -7,6 +7,8 @@
 // GNU GPL v3 or later
 //
 
+#include <hdbg_common.h>
+
 /***************************************************************************
                           fps.c  -  description
                              -------------------
@@ -36,8 +38,6 @@
 #include "stdafx.h"
 
 #define _IN_FPS
-
-#include <SDL.h>
 
 #include "externals.h"
 

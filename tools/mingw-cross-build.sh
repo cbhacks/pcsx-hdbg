@@ -50,16 +50,16 @@ mkdir "${PKG_DIR}"
 (
     echo "Downloading zlib source..."
     cd "${TEMP_DIR}"
-    wget http://zlib.net/zlib-1.2.11.tar.xz
+    wget http://zlib.net/zlib-1.2.12.tar.xz
 
     echo "Verifying downloaded file with SHA512..."
-    echo "b7f50ada138c7f93eb7eb1631efccd1d9f03a5e77b6c13c8b757017b2d462e19d2d3e01c50fad60a4ae1bc86d431f6f94c72c11ff410c25121e571953017cb67  zlib-1.2.11.tar.xz" | sha512sum -c --strict
+    echo "12940e81e988f7661da52fa20bdc333314ae86a621fdb748804a20840b065a1d6d984430f2d41f3a057de0effc6ff9bcf42f9ee9510b88219085f59cbbd082bd  zlib-1.2.12.tar.xz" | sha512sum -c --strict
 
     echo "Extracting zlib source archive..."
-    tar xJf zlib-1.2.11.tar.xz
+    tar xJf zlib-1.2.12.tar.xz
 
     echo "Building zlib..."
-    cd zlib-1.2.11
+    cd zlib-1.2.12
     sed "s/PREFIX =/PREFIX = ${HOST}-/" -i win32/Makefile.gcc
     export prefix=""
     export DESTDIR="${PREFIX_DIR}"

@@ -1,0 +1,47 @@
+name: pcsx-hdbg CI/CD
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: sudo apt-get install gcc-mingw-w64-i686
+
+      - name: Build
+        run: |
+            mkdir build
+            cd build
+            ARCH=i686 ../tools/mingw-cross-build.sh
+            mv pcsx-hdbg.zip ../build.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-zip
+          path: build.zip
+
+  deploy:
+    name: Deploy
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build-zip
+
+      - name: Deploy to S3
+        run: aws s3 cp build.zip s3://builds.cbhacks.com/pcsx-hdbg/pcsx-hdbg-$(date -u +%Y%m%d-%H%M%S).zip

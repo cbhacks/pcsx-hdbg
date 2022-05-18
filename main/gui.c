@@ -292,6 +292,14 @@ void gui_update(void)
             pad_handlejaxis(ev.caxis.axis, ev.caxis.value);
             break;
 
+        case SDL_CONTROLLERDEVICEADDED:
+            pad_handlejinsert(ev.cdevice.which);
+            break;
+
+        case SDL_CONTROLLERDEVICEREMOVED:
+            pad_handlejunplug();
+            break;
+
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             if (gui_isopen) {

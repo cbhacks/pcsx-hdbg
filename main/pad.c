@@ -55,6 +55,8 @@ static bool pad_forcedigital = false;
 
 static SDL_GameController *pad_joystick = NULL;
 
+static char pad_joystickname[40];
+
 static int scr_forcedigitalpad(lua_State *L)
 {
     luaL_checktype(L, 1, LUA_TBOOLEAN);
@@ -226,6 +228,11 @@ void pad_init(void)
 
             if (joyid != -1 && joyid == i) {
                 pad_joystick = joystick;
+                strncpy(
+                    pad_joystickname,
+                    SDL_GameControllerName(joystick),
+                    sizeof(pad_joystickname)
+                );
                 printf("--> ");
             } else {
                 printf("    ");
@@ -415,6 +422,49 @@ void pad_handlejaxis(int jaxis, int position)
     }
 
     }
+}
+
+void pad_handlejinsert(int index)
+{
+    if (pad_joystick)
+        return;
+    if (!pad_joystickname[0])
+        return;
+
+    pad_joystick = SDL_GameControllerOpen(index);
+    if (!pad_joystick) {
+        fprintf(
+            stderr,
+            "SDL_OpenGameController failed: %s\n",
+            SDL_GetError()
+        );
+        return;
+    }
+
+    const char *new_joystickname = SDL_GameControllerName(pad_joystick);
+    if (strncmp(pad_joystickname, new_joystickname, sizeof(pad_joystickname)) == 0) {
+        printf("Joystick/gamepad was plugged back in\n");
+    } else {
+        SDL_GameControllerClose(pad_joystick);
+        pad_joystick = NULL;
+    }
+}
+
+void pad_handlejunplug(void)
+{
+    printf("Joystick/gamepad was disconnected\n");
+    pad_clearjoy();
+    SDL_GameControllerClose(pad_joystick);
+    pad_joystick = NULL;
+}
+
+void pad_clearjoy(void)
+{
+    pad_joybuttons = 0xFFFF;
+    pad_analoglx = 0x80;
+    pad_analogly = 0x80;
+    pad_analogrx = 0x80;
+    pad_analogry = 0x80;
 }
 
 void pad_clearkeys(void)

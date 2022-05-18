@@ -53,7 +53,10 @@ bool pad_hasanalogs(void);
 void pad_handlekey(SDL_Scancode scancode, int down);
 void pad_handlejbutton(int jbutton, int down);
 void pad_handlejaxis(int axis, int state);
+void pad_handlejinsert(int index);
+void pad_handlejunplug(void);
 
+void pad_clearjoy(void);
 void pad_clearkeys(void);
 
 int pad_lookupname(const char *name);
